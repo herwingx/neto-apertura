@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#g)"/>
+  <!-- Shopping cart icon -->
+  <path d="M140 160h42l28 140h160l26-105H206" fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="220" cy="350" r="22" fill="#facc15"/>
+  <circle cx="340" cy="350" r="22" fill="#facc15"/>
+  <!-- Checkmark badge -->
+  <circle cx="360" cy="170" r="72" fill="#15803d" stroke="#ffffff" stroke-width="12"/>
+  <path d="M330 170l20 22 42-44" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

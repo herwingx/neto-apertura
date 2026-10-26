@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<title>Apertura Neto · Checklist de Soporte Técnico</title>
+<style>
+:root {
+  --bg: #0b1120;
+  --card: #151f32;
+  --card-sub: #1e293b;
+  --line: #2d3b53;
+  --tx: #f1f5f9;
+  --tx-muted: #94a3b8;
+  --neto-red: #e11d48;
+  --neto-yellow: #facc15;
+  --ok: #22c55e;
+  --ok-bg: #14532d;
+  --bad: #ef4444;
+  --bad-bg: #7f1d1d;
+  --warn: #f59e0b;
+  --warn-bg: #78350f;
+  --na-bg: #475569;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tx);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  padding-bottom: 95px;
+}
+/* Header */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(11, 17, 32, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--tx);
+}
+.badge-neto {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.store-tag {
+  color: var(--neto-yellow);
+  font-weight: 600;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sync-btn {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--tx);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--warn);
+}
+.dot.ok { background: var(--ok); }
+.dot.saving { background: var(--neto-yellow); animation: pulse 1s infinite; }
+@keyframes pulse { 0%{opacity:.4} 50%{opacity:1} 100%{opacity:.4} }
+
+/* Progress bar */
+.progress-wrap {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bar {
+  flex: 1;
+  height: 6px;
+  background: var(--card-sub);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e11d48, #22c55e);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.progress-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tx-muted);
+  min-width: 38px;
+  text-align: right;
+}
+
+/* Layout */
+main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 10px 12px;
+}
+.section-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+details summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 13px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  user-select: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::after {
+  content: "▾";
+  font-size: 14px;
+  color: var(--tx-muted);
+  transition: transform 0.2s;
+}
+details[open] summary::after {
+  transform: rotate(180deg);
+}
+.count-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-muted);
+  background: var(--card-sub);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-right: 6px;
+  margin-left: auto;
+}
+.count-badge.done {
+  color: #fff;
+  background: var(--ok-bg);
+}
+.section-body {
+  padding: 0 10px 12px;
+}
+
+/* Checklist items */
+.chk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 8px;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+  user-select: none;
+}
+.chk-item input { display: none; }
+.custom-box {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+  transition: all 0.15s ease;
+}
+.chk-item input:checked + .custom-box {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+.chk-item input:checked + .custom-box::after {
+  content: "✓";
+  color: #052e16;
+  font-weight: 900;
+  font-size: 15px;
+}
+.item-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--tx);
+  transition: color 0.15s;
+}
+.chk-item input:checked ~ .item-text {
+  color: var(--tx-muted);
+  text-decoration: line-through;
+}
+
+/* Warnings / Info callout */
+.alert-box {
+  background: #422006;
+  border: 1px solid #78350f;
+  color: #fef08a;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin: 6px 6px 10px;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Inputs & Form */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 4px 6px 8px;
+}
+.col-full { grid-column: 1 / -1; }
+label.field-lbl {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tx-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+input.txt-input, select.txt-input, textarea.txt-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--tx);
+  border-radius: 9px;
+  padding: 10px 11px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input.txt-input:focus, textarea.txt-input:focus {
+  border-color: var(--neto-red);
+}
+textarea.txt-input {
+  min-height: 70px;
+  resize: vertical;
+}
+
+/* Peripherals Table */
+table.periph-tbl {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 4px;
+  font-size: 13px;
+  margin-top: 4px;
+}
+table.periph-tbl th {
+  padding: 6px 4px;
+  color: var(--tx-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+table.periph-tbl td {
+  padding: 3px 2px;
+}
+table.periph-tbl td.p-name {
+  color: var(--tx);
+  font-weight: 500;
+  font-size: 13px;
+  padding-left: 6px;
+}
+.pill-btn {
+  width: 100%;
+  min-height: 38px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.pill-btn:active { transform: scale(0.97); }
+.pill-Ok { background: var(--ok-bg); color: #86efac; border: 1px solid #16a34a; }
+.pill-Falla { background: var(--bad-bg); color: #fca5a5; border: 1px solid #dc2626; }
+.pill-Sin { background: var(--warn-bg); color: #fde047; border: 1px solid #d97706; }
+.pill-NA { background: var(--na-bg); color: #cbd5e1; border: 1px solid #64748b; }
+
+/* Quick chips list */
+.add-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 0 4px;
+}
+.btn-mini-add {
+  background: var(--card-sub);
+  border: 1px solid var(--line);
+  color: var(--tx);
+  border-radius: 9px;
+  padding: 0 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Report View */
+.fmt-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 4px 10px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 9px 4px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--tx-muted);
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+.tab-btn.active {
+  background: var(--neto-red);
+  color: #fff;
+  border-color: var(--neto-red);
+}
+pre.report-box {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 0 4px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  color: #e2e8f0;
+}
+.btn-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 4px;
+}
+.btn-act {
+  flex: 1;
+  padding: 13px 10px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+.btn-act:active { opacity: 0.8; }
+.btn-wa { background: #25d366; color: #042f13; }
+.btn-copy { background: #3b82f6; color: #eff6ff; }
+.btn-reset { background: var(--line); color: var(--tx); }
+
+/* Floating bottom bar */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 8px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+.btn-main {
+  flex: 2;
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: #fff;
+  border: none;
+  border-radius: 11px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-sec {
+  flex: 1;
+  background: var(--card-sub);
+  color: var(--tx);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Modals */
+dialog {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--tx);
+  padding: 0;
+  max-width: 500px;
+  width: 92vw;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+dialog::backdrop {
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+}
+.modal-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title { font-weight: 700; font-size: 16px; margin: 0; }
+.modal-body { padding: 14px 16px; }
+.modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--tx-muted);
+  font-size: 20px;
+  cursor: pointer;
+}
+/* Toast Notification */
+#toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: #1e293b;
+  color: #fff;
+  border: 1px solid var(--ok);
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  z-index: 100;
+}
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo-title">
+      <span class="badge-neto">NETO</span>
+      <span>Apertura</span>
+      <span id="storeHeaderTag" class="store-tag"></span>
+    </div>
+    <div class="header-actions">
+      <button id="syncModalBtn" class="sync-btn" title="Configurar Nube y Compartir">
+        <span id="syncDot" class="dot"></span>
+        <span id="syncStatusText">Nube</span>
+      </button>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="bar"><div id="progressBar" class="bar-fill"></div></div>
+    <div id="progressPct" class="progress-pct">0%</div>
+  </div>
+</header>
+
+<main id="appContent"></main>
+
+<div class="bottom-bar">
+  <button id="quickShareBtn" class="btn-sec" title="Compartir con compañero">🔗 Compartir</button>
+  <button id="navReportBtn" class="btn-main">Generar Reporte WhatsApp</button>
+</div>
+
+<div id="toast"></div>
+
+<!-- Dialog Supabase & Sync -->
+<dialog id="syncDialog">
+  <div class="modal-header">
+    <h3 class="modal-title">☁️ Sincronización en la Nube</h3>
+    <button class="close-btn" onclick="$('#syncDialog').close()">✕</button>
+  </div>
+  <div class="modal-body">
+    <p style="font-size:13px; color:var(--tx-muted); margin-top:0;">
+      Tu avance se guarda <b>automáticamente</b> en este teléfono y en Supabase. Si van dos compañeros, comparte este código para ver el checklist actualizado al mismo tiempo.
+    </p>
+    <label class="field-lbl">Código de Sesión / Tienda
+      <input class="txt-input" id="cfgCode" placeholder="Ej. NETO-1712-APERTURA">
+    </label>
+    <div style="margin-top:10px; display:flex; gap:8px;">
+      <button id="btnGenCode" class="btn-sec" style="flex:1;">🎲 Generar Código</button>
+      <button id="btnCopyLink" class="btn-sec" style="flex:1;">🔗 Copiar Enlace</button>
+    </div>
+
+    <details style="margin-top:14px;">
+      <summary style="font-size:12px; color:var(--tx-muted); cursor:pointer;">Configuración avanzada de Supabase</summary>
+      <div style="margin-top:8px;">
+        <label class="field-lbl">Supabase Project URL
+          <input class="txt-input" id="cfgUrl">
+        </label>
+        <label class="field-lbl" style="margin-top:6px;">Supabase Anon Key
+          <input class="txt-input" id="cfgKey">
+        </label>
+      </div>
+    </details>
+  </div>
+  <div class="modal-footer">
+    <button id="btnPullCloud" class="btn-sec" style="color:var(--tx);">⬇ Cargar Avance</button>
+    <button id="btnSaveConfig" class="btn-main" style="flex:none; padding:10px 18px;">Aceptar</button>
+  </div>
+</dialog>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function showToast(msg) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+/* ============================================================
+   1. CONFIGURACIÓN DEL PROCESO DE APERTURA TIENDAS NETO
+============================================================ */
+const PHASES = [
+  {
+    id: "rack",
+    title: "1 · Rack de Comunicaciones y Red",
+    items: [
+      { id: "r1", label: "Instalación de Fortinet y Switch en rack de comunicaciones", rep: "Acomodo e instalación de equipos en rack de comunicaciones" },
+      { id: "r2", label: "Peinado y encinchado del rack de comunicaciones", rep: "Peinado y encinchado de cableado en rack" },
+      { id: "r3", label: "Configuración de Fortinet", rep: "Configuración de Fortinet" },
+      { id: "r4", label: "Conexión con proveedor de internet o instalación de módem provisional", rep: "Enlace con proveedor de internet" },
+      { id: "r5", label: "Instalación de No-Break en rack de comunicaciones", rep: "Instalación de No-Break en rack" }
+    ]
+  },
+  {
+    id: "ger",
+    title: "2 · WS_GERENTE (Caja Gerente)",
+    items: [
+      { id: "g1", label: "Instalación de caja gerente y No-Break", rep: "Instalación de caja gerente con No-Break" },
+      { id: "g2", label: "Peinado de cables en caja gerente", rep: "Peinado y acomodo de cables en caja gerente" },
+      { id: "g3", label: "Carga de imagen del SO", rep: null },
+      { id: "g4", label: "Configuración de impresora y cajón de dinero", rep: "Prueba de impresión y apertura de gaveta en Gerente" },
+      { id: "g5", label: "Instalación de antivirus", rep: "Instalación de antivirus en WS_GERENTE" },
+      { id: "g6", label: "Script: Correr para eliminar usuario cambios", rep: null },
+      { id: "g7", label: "Script: Crear usuario cambios", rep: null },
+      { id: "g8", label: "Script: Desbloquear usuario cambios", rep: null },
+      { id: "g9", label: "Solicitar activación de tienda", rep: "Activación de tienda solicitada" },
+      { id: "g10", label: "Instalar Hydra y bajar cambios en Hydra", rep: "Cambios Hydra aplicados en Gerente" },
+      { id: "g11", label: "Validar acceso a Slack", rep: "Slack validado en Gerente" },
+      { id: "g12", label: "Imprimir manual de escáner para configuración", rep: null },
+      { id: "g13", label: "Asignar dirección IP y DNS", rep: "IP y DNS configurados en Gerente" },
+      { id: "g14", label: "Cambiar fecha y hora por internet", rep: "Fecha y hora sincronizadas por internet" },
+      { id: "g15", label: "Desactivar ahorro de energía controladora USB 3.0", rep: null },
+      { id: "g16", label: "Script: Correr para activación de terminales PAX", rep: "Activación de terminales PAX" },
+      { id: "g17", label: "Script: Correr previo al instalador de POS", rep: null },
+      { id: "g18", label: "Correr instalador de POS y config. de tienda (Coord. Sistemas)", rep: "Instalación y config. de POS tienda apertura" },
+      { id: "g19", label: "Script: Correr para después del instalador", rep: null },
+      { id: "g20", label: "Verificar funcionalidad de POS con Calidad Operativa", rep: "Funcionalidad de POS validada con Calidad Operativa" },
+      { id: "g21", label: "Si faltan recargas: bajar cambios desde 1060", rep: null },
+      { id: "g22", label: "Script: Correr para finalizar instalación", rep: null }
+    ]
+  },
+  {
+    id: "c1",
+    title: "3 · WS_CAJA01 (Caja 1)",
+    items: [
+      { id: "c1_1", label: "Instalación de caja 1 y No-Break", rep: "Instalación de caja 1 con No-Break" },
+      { id: "c1_2", label: "Instalación de base y orificio para terminal PAX", rep: "Base y orificio para terminal PAX en Caja 1" },
+      { id: "c1_3", label: "Peinado de cables en caja 1", rep: "Peinado de cables en Caja 1" },
+      { id: "c1_4", label: "Configuración de escáner (hoja impresa en Gerente)", rep: "Escáner configurado con plantilla en Caja 1" },
+      { id: "c1_5", label: "Carga de imagen del SO", rep: null },
+      { id: "c1_6", label: "Configuración de impresora y cajón de dinero", rep: "Prueba de impresión y cajón en Caja 1" },
+      { id: "c1_7", label: "Instalación de antivirus", rep: "Antivirus instalado en Caja 1" },
+      { id: "c1_8", label: "Instalar Hydra y bajar cambios en Hydra", rep: "Cambios Hydra aplicados en Caja 1" },
+      { id: "c1_9", label: "Validar acceso a Slack", rep: "Slack validado en Caja 1" },
+      { id: "c1_10", label: "Asignar dirección IP y DNS", rep: "IP y DNS configurados en Caja 1" },
+      { id: "c1_11", label: "Cambiar fecha y hora por internet", rep: null },
+      { id: "c1_12", label: "Desactivar ahorro de energía controladora USB 3.0", rep: null },
+      { id: "c1_13", label: "Configuración de terminal PAX config", rep: null },
+      { id: "c1_14", label: "Correr componente transaccional", rep: null },
+      { id: "c1_15", label: "Reiniciar servicio PAX", rep: null },
+      { id: "c1_16", label: "Paydroid Software Refresh y cargar APK más reciente (Hydra)", rep: "APK PAX actualizada vía Paydroid en Caja 1" },
+      { id: "c1_17", label: "Correr instalador de POS", rep: "POS instalado en Caja 1" },
+      { id: "c1_18", label: "Verificar funcionalidad de POS con Calidad Operativa", rep: "POS Caja 1 validado con Calidad Operativa" },
+      { id: "c1_19", label: "Script: Correr para finalizar instalación", rep: null }
+    ]
+  },
+  {
+    id: "c2",
+    title: "4 · WS_CAJA02 (Caja 2)",
+    note: "RECORDATORIO: Por diseño arquitectónico y eléctrico, esta caja NO lleva No-Break.",
+    items: [
+      { id: "c2_1", label: "Instalación de caja 2 (sin no-break por diseño)", rep: "Instalación de caja 2" },
+      { id: "c2_2", label: "Instalación de base y orificio para terminal PAX", rep: "Base y orificio para terminal PAX en Caja 2" },
+      { id: "c2_3", label: "Peinado de cables en caja 2", rep: "Peinado de cables en Caja 2" },
+      { id: "c2_4", label: "Configuración de escáner (hoja impresa en Gerente)", rep: "Escáner configurado con plantilla en Caja 2" },
+      { id: "c2_5", label: "Carga de imagen del SO", rep: null },
+      { id: "c2_6", label: "Configuración de impresora y cajón de dinero", rep: "Prueba de impresión y cajón en Caja 2" },
+      { id: "c2_7", label: "Instalación de antivirus", rep: "Antivirus instalado en Caja 2" },
+      { id: "c2_8", label: "Instalar Hydra y bajar cambios en Hydra", rep: "Cambios Hydra aplicados en Caja 2" },
+      { id: "c2_9", label: "Validar acceso a Slack", rep: "Slack validado en Caja 2" },
+      { id: "c2_10", label: "Asignar dirección IP y DNS", rep: "IP y DNS configurados en Caja 2" },
+      { id: "c2_11", label: "Cambiar fecha y hora por internet", rep: null },
+      { id: "c2_12", label: "Desactivar ahorro de energía controladora USB 3.0", rep: null },
+      { id: "c2_13", label: "Configuración de terminal PAX config", rep: null },
+      { id: "c2_14", label: "Correr componente transaccional", rep: null },
+      { id: "c2_15", label: "Reiniciar servicio PAX", rep: null },
+      { id: "c2_16", label: "Paydroid Software Refresh y cargar APK más reciente (Hydra)", rep: "APK PAX actualizada vía Paydroid en Caja 2" },
+      { id: "c2_17", label: "Correr instalador de POS", rep: "POS instalado en Caja 2" },
+      { id: "c2_18", label: "Verificar funcionalidad de POS con Calidad Operativa", rep: "POS Caja 2 validado con Calidad Operativa" },
+      { id: "c2_19", label: "Script: Correr para finalizar instalación", rep: null }
+    ]
+  },
+  {
+    id: "radio",
+    title: "5 · Radio Neto",
+    items: [
+      { id: "rad1", label: "Colocación de bocinas de Radio Neto", rep: "Bocinas de Radio Neto instaladas" },
+      { id: "rad2", label: "Cableado de bocinas hasta amplificador en caja", rep: "Cableado de audio a amplificador" },
+      { id: "rad3", label: "Prueba de audio y validación de transmisión", rep: "Prueba de audio Radio Neto validada" }
+    ]
+  },
+  {
+    id: "cierre",
+    title: "6 · Cierre y Resguardo de Equipos",
+    items: [
+      { id: "cie1", label: "Cubrir equipos después de instalación y validación con Calidad Operativa", rep: "Equipos cubiertos y protegidos tras validación" },
+      { id: "cie2", label: "Apagar equipos y desconectar de la corriente eléctrica", rep: "Equipos apagados y desconectados para entrega de obra" }
+    ]
+  }
+];
+
+const STATIONS = [
+  { id: "GT", name: "Gerente (WS_GERENTE)" },
+  { id: "C01", name: "Caja 1 (WS_CAJA01)" },
+  { id: "C02", name: "Caja 2 (WS_CAJA02)" }
+];
+
+const PERIPHERALS = [
+  "🔌 No-break",
+  "💵 Gaveta de dinero",
+  "💳 Pinpad PAX",
+  "🖨️ Impresora térmica",
+  "⌨️ Teclado y mouse",
+  "👆 Lector de huella",
+  "🖥️ Monitor",
+  "🖲️ Escáner"
+];
+
+const STATES = ["Ok", "NA", "Falla", "Sin"];
+const STATE_LABELS = { Ok: "Ok", NA: "N/A", Falla: "Falla", Sin: "Sin Eq." };
+
+const FORM_FIELDS = [
+  { k: "fecha", label: "Fecha de visita", type: "date", col: 1 },
+  { k: "tienda", label: "No. y Nombre de Tienda", type: "text", placeholder: "Ej. 1712 Jerez Centro Juárez", col: 2 },
+  { k: "sian", label: "Zona SIAN", type: "text", placeholder: "Ej. Zacatecas 2", col: 1 },
+  { k: "region", label: "Región", type: "text", placeholder: "Ej. Occidente Bajío", col: 1 },
+  { k: "isp", label: "Proveedor de Internet", type: "text", placeholder: "Ej. Telmex / Totalplay", col: 1 },
+  { k: "svc", label: "Tipo de Servicio", type: "text", placeholder: "Ej. Fibra Óptica / Módem 4G", col: 1 },
+  { k: "speed", label: "SpeedTest (Mbps)", type: "text", placeholder: "Ej. 120 Mbps", col: 1 },
+  { k: "fortinet", label: "Modelo Fortinet", type: "text", placeholder: "Ej. 40F", col: 1 },
+  { k: "imagen", label: "Imagen SO", type: "text", placeholder: "Ej. 1063", col: 1 },
+  { k: "hydra", label: "Cambios Hydra", type: "text", placeholder: "Ej. 1107", col: 1 },
+  { k: "ing", label: "🧑🏻‍💻 Ing. Soporte Técnico (Entrega)", type: "text", placeholder: "Nombre del ingeniero", col: 2 },
+  { k: "co", label: "🤝 Calidad Operativa (Recibe)", type: "text", placeholder: "Nombre de quien recibe la tienda", col: 2 }
+];
+
+const DEFAULT_CORR = [
+  "Equipos entregados al 100% y resguardados (cubiertos)",
+  "Escáneres configurados con plantilla y lectura móvil activada",
+  "Slack instalado y probado en las 3 cajas",
+  "Sopleteo general de cómputo, periféricos y rack",
+  "Borrado de temporales realizado en todas las cajas",
+  "Prueba de impresión y apertura de gaveta verificada",
+  "Reacomodo de cómputo y comunicaciones según estándar"
+];
+
+const DEFAULT_PEND = [
+  "Instalación de Radio Neto pendiente por falta de tubería",
+  "Instalación definitiva del servicio de internet proveedor",
+  "Terminales PAX pendientes de asignación",
+  "Mástil de checkout flojo pendiente de ajuste por obra"
+];
+
+const DEFAULT_HALL = [
+  "Trabajos de pintura en proceso en tienda",
+  "Trabajos eléctricos en proceso",
+  "Trabajos de herrería en proceso",
+  "No se encontraba instalado UPS en tienda",
+  "Mástil de checkout con holgura / flojo",
+  "Falta tubería para canalización de Radio Neto"
+];
+
+/* ============================================================
+   2. ESTADO GLOBAL & PERSISTENCIA
+============================================================ */
+const STORAGE_KEY = "neto_apertura_data_v3";
+const DEFAULT_URL = "https://dldttdqpcpdtribtgzsa.supabase.co";
+const DEFAULT_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZHR0ZHFwY3BkdHJpYnRnenNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4Njg3OTYsImV4cCI6MjA4OTQ0NDc5Nn0.ItMe0uFz0f4EOmyHS8DhN8eYoWfpaU-BbNsCPndDK2Y";
+
+function getInitialConfig() {
+  const saved = JSON.parse(localStorage.getItem("neto_cfg") || "{}");
+  // Check URL parameter for session code (?code=... or ?session=...)
+  const urlParams = new URLSearchParams(window.location.search);
+  const qCode = urlParams.get("code") || urlParams.get("session");
+  return {
+    url: saved.url || DEFAULT_URL,
+    key: saved.key || DEFAULT_KEY,
+    code: qCode || saved.code || ("NETO-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-APERTURA")
+  };
+}
+
+let CFG = getInitialConfig();
+localStorage.setItem("neto_cfg", JSON.stringify(CFG));
+
+function createFreshState() {
+  const periph = {};
+  STATIONS.forEach(s => PERIPHERALS.forEach(p => periph[s.id + "|" + p] = "Ok"));
+  periph["GT|💳 Pinpad PAX"] = "NA"; // Gerente no lleva pinpad
+  periph["C02|🔌 No-break"] = "NA"; // Caja 2 no lleva no-break por diseño
+
+  return {
+    f: {
+      fecha: new Date().toISOString().slice(0, 10),
+      tienda: "",
+      sian: "",
+      region: "",
+      isp: "Telmex",
+      svc: "Fibra Óptica",
+      speed: "",
+      fortinet: "40F",
+      imagen: "1063",
+      hydra: "1107",
+      ing: "",
+      co: "",
+      rack: "Ok"
+    },
+    checks: {},
+    periph,
+    corr: DEFAULT_CORR.map(t => ({ t, on: false })),
+    pend: DEFAULT_PEND.map(t => ({ t, on: false })),
+    hall: DEFAULT_HALL.map(t => ({ t, on: false })),
+    obs: "",
+    fmt: "pro", // 'pro' | 'corto' | 'full'
+    vpn: true,
+    open: { rack: true, ger: true }
+  };
+}
+
+let STATE = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || createFreshState();
+
+/* ============================================================
+   3. SINCRONIZACIÓN SUPABASE (RPC)
+============================================================ */
+let syncTimer = null;
+
+function setSyncUI(status, label) {
+  const dot = $("#syncDot");
+  const txt = $("#syncStatusText");
+  if (!dot || !txt) return;
+  dot.className = "dot " + status;
+  txt.textContent = label;
+}
+
+async function rpcCall(fn, body) {
+  const r = await fetch(CFG.url.replace(/\/$/, "") + "/rest/v1/rpc/" + fn, {
+    method: "POST",
+    headers: {
+      "apikey": CFG.key,
+      "Authorization": "Bearer " + CFG.key,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function pushToCloud() {
+  if (!CFG.url || !CFG.key || !CFG.code || CFG.code.length < 10) {
+    setSyncUI("", "Local");
+    return;
+  }
+  setSyncUI("saving", "Guardando...");
+  try {
+    await rpcCall("neto_save_checklist", { p_code: CFG.code, p_data: STATE });
+    setSyncUI("ok", "Nube");
+  } catch (err) {
+    console.warn("Error sincronizando:", err);
+    setSyncUI("", "Local");
+  }
+}
+
+async function pullFromCloud(silent = false) {
+  if (!CFG.url || !CFG.key || !CFG.code) return;
+  try {
+    setSyncUI("saving", "Sincronizando...");
+    const res = await rpcCall("neto_get_checklist", { p_code: CFG.code });
+    if (res && res.data && Object.keys(res.data).length > 0) {
+      STATE = Object.assign(createFreshState(), res.data);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+      renderApp();
+      setSyncUI("ok", "Nube");
+      if (!silent) showToast("✓ Avance cargado desde la nube");
+    } else {
+      setSyncUI("ok", "Nube");
+      if (!silent) showToast("Sesión iniciada (sin datos previos)");
+      pushToCloud();
+    }
+  } catch (err) {
+    setSyncUI("", "Local");
+    if (!silent) showToast("⚠️ Sin conexión: trabajando en modo local");
+  }
+}
+
+function scheduleSave() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+  updateProgressBar();
+  updateLiveStoreTag();
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushToCloud, 1200);
+}
+
+/* ============================================================
+   4. RENDERIZACIÓN DE LA APLICACIÓN
+============================================================ */
+function updateProgressBar() {
+  const allItems = PHASES.flatMap(p => p.items);
+  const doneCount = allItems.filter(i => STATE.checks[i.id]).length;
+  const pct = Math.round((doneCount / allItems.length) * 100);
+  $("#progressBar").style.width = pct + "%";
+  $("#progressPct").textContent = pct + "%";
+}
+
+function updateLiveStoreTag() {
+  const store = STATE.f.tienda;
+  $("#storeHeaderTag").textContent = store ? ("· " + store) : "";
+}
+
+function renderApp() {
+  updateProgressBar();
+  updateLiveStoreTag();
+
+  let html = "";
+
+  // 1. Datos Generales de la Sucursal
+  html += `
+  <section class="section-card">
+    <details data-p="datos" ${STATE.open.datos !== false ? "open" : ""}>
+      <summary>📋 Datos de Sucursal y Responsables</summary>
+      <div class="section-body">
+        <div class="grid-2">
+          ${FORM_FIELDS.map(f => `
+            <label class="field-lbl ${f.col === 2 ? "col-full" : ""}">
+              ${f.label}
+              <input class="txt-input" data-f="${f.k}" type="${f.type}" placeholder="${f.placeholder || ""}" value="${esc(STATE.f[f.k])}">
+            </label>
+          `).join("")}
+        </div>
+      </div>
+    </details>
+  </section>`;
+
+  // 2. Fases del Checklist
+  PHASES.forEach(phase => {
+    const total = phase.items.length;
+    const done = phase.items.filter(i => STATE.checks[i.id]).length;
+    const isDone = done === total;
+
+    html += `
+    <section class="section-card">
+      <details data-p="${phase.id}" ${STATE.open[phase.id] ? "open" : ""}>
+        <summary>
+          <span>${phase.title}</span>
+          <span class="count-badge ${isDone ? "done" : ""}">${done}/${total}${isDone ? " ✓" : ""}</span>
+        </summary>
+        <div class="section-body">
+          ${phase.note ? `<div class="alert-box"><span>⚠️</span><span>${phase.note}</span></div>` : ""}
+          ${phase.items.map(item => `
+            <label class="chk-item">
+              <input type="checkbox" data-chk="${item.id}" ${STATE.checks[item.id] ? "checked" : ""}>
+              <span class="custom-box"></span>
+              <span class="item-text">${esc(item.label)}</span>
+            </label>
+          `).join("")}
+        </div>
+      </details>
+    </section>`;
+  });
+
+  // 3. Matriz de Estado de Equipos (Periféricos)
+  html += `
+  <section class="section-card">
+    <details data-p="periph" ${STATE.open.periph ? "open" : ""}>
+      <summary>
+        <span>🔎 Estado de Periféricos y Equipos</span>
+        <span class="count-badge">Toca para cambiar</span>
+      </summary>
+      <div class="section-body">
+        <div class="alert-box" style="background:#1e293b; border-color:#334155; color:#94a3b8; font-size:12px; margin:0 0 10px;">
+          💡 Toca cada botón para cambiar entre <b>Ok</b> (verde) ➔ <b>Falla</b> (rojo) ➔ <b>Sin equipo</b> (naranja) ➔ <b>N/A</b> (gris).
+        </div>
+        <table class="periph-tbl">
+          <thead>
+            <tr>
+              <th style="text-align:left; width:40%;">Periférico</th>
+              ${STATIONS.map(s => `<th style="width:20%;">${s.id}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${PERIPHERALS.map(p => `
+              <tr>
+                <td class="p-name">${p}</td>
+                ${STATIONS.map(s => {
+                  const key = s.id + "|" + p;
+                  const val = STATE.periph[key] || "Ok";
+                  return `<td><button class="pill-btn pill-${val}" data-pp="${key}">${STATE_LABELS[val]}</button></td>`;
+                }).join("")}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+
+        <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+          <button class="tab-btn ${STATE.vpn ? "active" : ""}" data-vpn style="margin:0;">
+            🆙 Balanceo VPN: ${STATE.vpn ? "Ok" : "N/A"}
+          </button>
+        </div>
+      </div>
+    </details>
+  </section>`;
+
+  // 4. Entregables, Pendientes y Hallazgos
+  const sections = [
+    { key: "corr", title: "✅ Entregables y Correcciones", icon: "✅", list: STATE.corr },
+    { key: "pend", title: "❌ Pendientes de Visita", icon: "❌", list: STATE.pend },
+    { key: "hall", title: "⚠️ Hallazgos en Tienda", icon: "⚠️", list: STATE.hall }
+  ];
+
+  sections.forEach(sec => {
+    const activeCount = sec.list.filter(x => x.on).length;
+    html += `
+    <section class="section-card">
+      <details data-p="${sec.key}" ${STATE.open[sec.key] ? "open" : ""}>
+        <summary>
+          <span>${sec.title}</span>
+          <span class="count-badge">${activeCount} seleccionados</span>
+        </summary>
+        <div class="section-body">
+          ${sec.list.map((item, idx) => `
+            <label class="chk-item">
+              <input type="checkbox" data-list="${sec.key}|${idx}" ${item.on ? "checked" : ""}>
+              <span class="custom-box"></span>
+              <span class="item-text" style="${item.on ? "font-weight:600; color:var(--tx);" : "color:var(--tx-muted);"}">${esc(item.t)}</span>
+            </label>
+          `).join("")}
+          <div class="add-row">
+            <input class="txt-input" placeholder="Agregar otro concepto..." data-add-input="${sec.key}">
+            <button class="btn-mini-add" data-add-btn="${sec.key}">+ Agregar</button>
+          </div>
+        </div>
+      </details>
+    </section>`;
+  });
+
+  // 5. Observaciones
+  html += `
+  <section class="section-card">
+    <details data-p="obs" ${STATE.open.obs ? "open" : ""}>
+      <summary>📝 Observaciones y Notas Adicionales</summary>
+      <div class="section-body">
+        <textarea class="txt-input" data-obs placeholder="Escribe notas adicionales para el reporte (opcional)...">${esc(STATE.obs)}</textarea>
+      </div>
+    </details>
+  </section>`;
+
+  // 6. Generador de Reporte WhatsApp
+  html += `
+  <section class="section-card" id="reportSection">
+    <details data-p="rep" ${STATE.open.rep ? "open" : ""}>
+      <summary>
+        <span>📤 Reporte de Cierre para WhatsApp</span>
+        <span class="count-badge" style="background:#22c55e; color:#052e16;">Listo para enviar</span>
+      </summary>
+      <div class="section-body">
+        <div class="fmt-tabs">
+          <button class="tab-btn ${STATE.fmt === "pro" ? "active" : ""}" data-fmt="pro">⭐ Resumen Pro</button>
+          <button class="tab-btn ${STATE.fmt === "corto" ? "active" : ""}" data-fmt="corto">⚡ Ejecutivo Corto</button>
+          <button class="tab-btn ${STATE.fmt === "full" ? "active" : ""}" data-fmt="full">📋 SIAN Completo</button>
+        </div>
+        <pre class="report-box" id="reportOutput"></pre>
+        <div class="btn-row">
+          <button class="btn-act btn-copy" id="btnCopyReport">📋 Copiar Reporte</button>
+          <button class="btn-act btn-wa" id="btnSendWa">📱 Enviar por WhatsApp</button>
+        </div>
+        <div style="margin-top:12px; text-align:center;">
+          <button id="btnResetApp" style="background:none; border:none; color:var(--tx-muted); font-size:12px; cursor:pointer; text-decoration:underline;">
+            🔄 Iniciar nueva apertura (limpiar formulario)
+          </button>
+        </div>
+      </div>
+    </details>
+  </section>`;
+
+  // Record active focus before rewriting DOM
+  const focused = document.activeElement;
+  const focusedKey = focused && focused.dataset ? (focused.dataset.f || focused.dataset.addInput || (focused.dataset.obs !== undefined ? "obs" : null)) : null;
+  const selectionPos = focused ? focused.selectionStart : null;
+
+  $("#appContent").innerHTML = html;
+  updateReportOutput();
+
+  if (focusedKey) {
+    const el = document.querySelector(`[data-f="${focusedKey}"], [data-add-input="${focusedKey}"]${focusedKey === "obs" ? ", [data-obs]" : ""}`);
+    if (el) {
+      el.focus();
+      try { el.setSelectionRange(selectionPos, selectionPos); } catch (e) {}
+    }
+  }
+}
+
+/* ============================================================
+   5. GENERACIÓN DEL MENSAJE DE REPORTE (PROFESIONAL)
+============================================================ */
+function formatDate(d) {
+  if (!d) return "";
+  const parts = d.split("-");
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
+}
+
+function generateReportText() {
+  const f = STATE.f;
+  const lines = [];
+
+  const getActive = (key) => STATE[key].filter(x => x.on).map(x => x.t);
+  const corr = getActive("corr");
+  const pend = getActive("pend");
+  const hall = getActive("hall");
+
+  // Done checklist deliverables
+  const doneWorks = [...new Set(
+    PHASES.flatMap(p => p.items)
+      .filter(i => STATE.checks[i.id] && i.rep)
+      .map(i => i.rep)
+  )];
+
+  // Peripherals in failure
+  const fails = [];
+  STATIONS.forEach(s => {
+    PERIPHERALS.forEach(p => {
+      if (STATE.periph[s.id + "|" + p] === "Falla") {
+        fails.push(`${p.replace(/^..\s*/, "")} en ${s.id}: Falla`);
+      }
+    });
+  });
+
+  const header = [
+    `📆 Fecha: ${formatDate(f.fecha) || "Sin fecha"}`,
+    "",
+    "Se concluye visita a Tienda Neto 🏪",
+    `🛒 ${f.tienda || "Tienda de Apertura"}`,
+    (f.sian || f.region) ? `🗺️ Zona SIAN: ${f.sian || "—"}${f.region ? " · Región: " + f.region : ""}` : null
+  ].filter(Boolean);
+
+  const netInfo = [
+    f.isp ? `📡 Proveedor Internet: ${f.isp}${f.svc ? " (" + f.svc + ")" : ""}` : null,
+    f.speed ? `🚀 SpeedTest: ${f.speed} Mbps` : null
+  ].filter(Boolean);
+
+  const versions = [
+    f.imagen ? `Imagen SO: ${f.imagen}` : null,
+    f.hydra ? `Hydra: ${f.hydra}` : null,
+    f.fortinet ? `Fortinet: ${f.fortinet}` : null
+  ].filter(Boolean).join(" · ");
+
+  const responsibles = [
+    `🧑🏻‍💻 Atiende Visita: Ing. ${f.ing || "Soporte Técnico"}`,
+    `🤝 Se entrega a Calidad Operativa: ${f.co || "Pendiente de validación"}`
+  ];
+
+  const hashtags = [
+    "",
+    "#ConTODO 👊🏼",
+    "#CreandoValorNETO 🏆",
+    "#SistemasInfraestructura 🇲🇽🛒"
+  ];
+
+  // Helper for bullet list
+  const addBlock = (title, items, icon) => {
+    if (!items || items.length === 0) return [];
+    return ["", title, ...items.map(it => `${icon} ${it}`)];
+  };
+
+  /* ---- FORMATO 1: RESUMEN HÍBRIDO PRO (RECOMENDADO) ---- */
+  if (STATE.fmt === "pro") {
+    lines.push(...header, "");
+    if (versions) lines.push(`⚙️ ${versions}`);
+    if (netInfo.length) lines.push(...netInfo);
+
+    // Peripheral matrix summary
+    lines.push("", "*ESTADO DE EQUIPOS*");
+    PERIPHERALS.forEach(p => {
+      const summary = STATIONS.map(s => `${s.id}: ${STATE_LABELS[STATE.periph[s.id + "|" + p]]}`).join(" | ");
+      lines.push(`${p}: ${summary}`);
+    });
+    lines.push(`🎞️ Rack de comunicaciones: ${f.rack || "Ok"}${STATE.vpn ? " · 🆙 Balanceo VPN: Ok" : ""}`);
+    lines.push("*(C02 por diseño arquitectónico no lleva No-Break)*");
+
+    const deliverables = [...doneWorks.slice(0, 7), ...corr];
+    lines.push(...addBlock("*TRABAJOS REALIZADOS*", deliverables, "✅"));
+    lines.push(...addBlock("*PENDIENTES*", pend, "❌"));
+    lines.push(...addBlock("*HALLAZGOS*", hall, "⚠️"));
+
+    if (fails.length) {
+      lines.push(...addBlock("*EQUIPOS CON FALLA*", fails, "❌"));
+    }
+
+    if (STATE.obs.trim()) {
+      lines.push("", "*OBSERVACIONES*", STATE.obs.trim());
+    }
+
+    lines.push("", ...responsibles);
+    lines.push(...hashtags);
+
+  /* ---- FORMATO 2: EJECUTIVO CORTO ---- */
+  } else if (STATE.fmt === "corto") {
+    lines.push(...header, "");
+    if (versions) lines.push(versions);
+    if (netInfo.length) lines.push(...netInfo);
+    lines.push(...responsibles);
+
+    lines.push(...addBlock("*Entregables*", corr, "✅"));
+    lines.push(...addBlock("*Pendientes*", pend, "❌"));
+    lines.push(...addBlock("*Hallazgos*", hall, "⚠️"));
+
+    if (fails.length) {
+      lines.push(...addBlock("*Fallas*", fails, "❌"));
+    }
+
+    lines.push(...hashtags);
+
+  /* ---- FORMATO 3: SIAN COMPLETO (TRADICIONAL) ---- */
+  } else {
+    lines.push(...header, "", "🪛🖥️");
+    doneWorks.forEach(w => lines.push(`⚙️ ${w}`));
+
+    lines.push(
+      "",
+      "🔰 *Equipos de comunicaciones*",
+      "Switch: Ok",
+      `Marca: Fortinet · Modelo: ${f.fortinet || "40F"}`,
+      "Estatus: Ok",
+      "",
+      ...netInfo,
+      "",
+      "*OBSERVACIONES*"
+    );
+
+    PERIPHERALS.forEach(p => {
+      const pClean = p.replace(/^..\s*/, "").toUpperCase();
+      lines.push(pClean + ".");
+      STATIONS.forEach(s => {
+        lines.push(`${s.id}: ${STATE_LABELS[STATE.periph[s.id + "|" + p]]}`);
+      });
+    });
+
+    lines.push(
+      `🎞️ RACK DE COMUNICACIONES: ${f.rack || "Ok"}`,
+      `📨 Cambios HYDRA: ${f.hydra || "Ok"}`,
+      `🆙 Balanceo VPN: ${STATE.vpn ? "Ok" : "N/A"}`
+    );
+
+    lines.push(...addBlock("*CORRECCIONES*", corr, "✅"));
+    lines.push(...addBlock("*PENDIENTES*", pend, "❌"));
+    lines.push(...addBlock("*HALLAZGOS*", hall, "❌"));
+
+    if (STATE.obs.trim()) {
+      lines.push("", STATE.obs.trim());
+    }
+
+    lines.push(
+      "",
+      "📸 Inventario Fotográfico: COMPLETO",
+      "",
+      ...responsibles,
+      ...hashtags
+    );
+  }
+
+  return lines.join("\n");
+}
+
+function updateReportOutput() {
+  const box = $("#reportOutput");
+  if (box) box.textContent = generateReportText();
+}
+
+/* ============================================================
+   6. CONTROLADORES DE EVENTOS
+============================================================ */
+const app = $("#appContent");
+
+// Form inputs
+app.addEventListener("input", (e) => {
+  const d = e.target.dataset;
+  if (d.f) {
+    STATE.f[d.f] = e.target.value;
+    updateLiveStoreTag();
+    scheduleSave();
+    updateReportOutput();
+  } else if (d.obs !== undefined) {
+    STATE.obs = e.target.value;
+    scheduleSave();
+    updateReportOutput();
+  }
+});
+
+// Checkboxes
+app.addEventListener("change", (e) => {
+  const d = e.target.dataset;
+  if (d.chk) {
+    STATE.checks[d.chk] = e.target.checked;
+    scheduleSave();
+    renderApp();
+  } else if (d.list) {
+    const [key, idx] = d.list.split("|");
+    STATE[key][parseInt(idx)].on = e.target.checked;
+    scheduleSave();
+    renderApp();
+  }
+});
+
+// Buttons and pills clicks
+app.addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  const d = btn.dataset;
+
+  // Toggle peripheral pill
+  if (d.pp) {
+    const cur = STATE.periph[d.pp] || "Ok";
+    const next = STATES[(STATES.indexOf(cur) + 1) % STATES.length];
+    STATE.periph[d.pp] = next;
+    scheduleSave();
+    renderApp();
+    return;
+  }
+
+  // VPN toggle
+  if (d.vpn !== undefined) {
+    STATE.vpn = !STATE.vpn;
+    scheduleSave();
+    renderApp();
+    return;
+  }
+
+  // Report format tab
+  if (d.fmt) {
+    STATE.fmt = d.fmt;
+    scheduleSave();
+    renderApp();
+    return;
+  }
+
+  // Add custom deliverable / pending / finding
+  if (d.addBtn) {
+    const input = app.querySelector(`[data-add-input="${d.addBtn}"]`);
+    if (input && input.value.trim()) {
+      STATE[d.addBtn].push({ t: input.value.trim(), on: true });
+      input.value = "";
+      scheduleSave();
+      renderApp();
+    }
+    return;
+  }
+
+  // Copy report
+  if (btn.id === "btnCopyReport") {
+    const text = generateReportText();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = "✓ ¡Copiado!";
+      showToast("✓ Reporte copiado al portapapeles");
+      setTimeout(() => { btn.textContent = "📋 Copiar Reporte"; }, 2000);
+    }).catch(() => {
+      showToast("Selecciona el texto para copiar");
+    });
+    return;
+  }
+
+  // Send to WhatsApp
+  if (btn.id === "btnSendWa") {
+    const text = generateReportText();
+    const url = "https://wa.me/?text=" + encodeURIComponent(text);
+    window.open(url, "_blank");
+    return;
+  }
+
+  // Reset form
+  if (btn.id === "btnResetApp") {
+    if (confirm("¿Deseas iniciar una nueva apertura? Se limpiarán las casillas de este dispositivo (se conserva tu nombre de ingeniero).")) {
+      const ing = STATE.f.ing;
+      STATE = createFreshState();
+      STATE.f.ing = ing;
+      scheduleSave();
+      renderApp();
+      showToast("Formulario reiniciado para nueva apertura");
+    }
+    return;
+  }
+});
+
+// Keep track of collapsed/expanded details
+app.addEventListener("toggle", (e) => {
+  const p = e.target.dataset && e.target.dataset.p;
+  if (p) {
+    STATE.open[p] = e.target.open;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+  }
+}, true);
+
+// Header & bottom bar navigation
+$("#navReportBtn").onclick = () => {
+  STATE.open.rep = true;
+  renderApp();
+  const repSec = $("#reportSection");
+  if (repSec) repSec.scrollIntoView({ behavior: "smooth" });
+};
+
+// Sync Modal
+$("#syncModalBtn").onclick = () => {
+  $("#cfgCode").value = CFG.code || "";
+  $("#cfgUrl").value = CFG.url || "";
+  $("#cfgKey").value = CFG.key || "";
+  $("#syncDialog").showModal();
+};
+
+$("#btnGenCode").onclick = () => {
+  const storeNum = STATE.f.tienda.match(/\d+/);
+  const prefix = storeNum ? `NETO-${storeNum[0]}-` : "NETO-";
+  $("#cfgCode").value = prefix + Math.random().toString(36).substring(2, 8).toUpperCase() + "-APERTURA";
+};
+
+$("#btnCopyLink").onclick = () => {
+  const code = $("#cfgCode").value.trim() || CFG.code;
+  const shareUrl = window.location.origin + window.location.pathname + "?code=" + encodeURIComponent(code);
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    showToast("✓ Enlace de sesión copiado al portapapeles");
+  });
+};
+
+$("#quickShareBtn").onclick = () => {
+  const shareUrl = window.location.origin + window.location.pathname + "?code=" + encodeURIComponent(CFG.code);
+  const storeName = STATE.f.tienda || "Apertura Neto";
+  const msg = `Checklist en tiempo real para ${storeName}:\n${shareUrl}`;
+
+  if (navigator.share) {
+    navigator.share({ title: "Checklist Neto", text: msg, url: shareUrl }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast("✓ Enlace para tu compañero copiado");
+    });
+  }
+};
+
+$("#btnSaveConfig").onclick = () => {
+  CFG.code = $("#cfgCode").value.trim();
+  CFG.url = $("#cfgUrl").value.trim() || DEFAULT_URL;
+  CFG.key = $("#cfgKey").value.trim() || DEFAULT_KEY;
+  localStorage.setItem("neto_cfg", JSON.stringify(CFG));
+  $("#syncDialog").close();
+  pushToCloud();
+  showToast("Configuración guardada");
+};
+
+$("#btnPullCloud").onclick = () => {
+  CFG.code = $("#cfgCode").value.trim();
+  CFG.url = $("#cfgUrl").value.trim() || DEFAULT_URL;
+  CFG.key = $("#cfgKey").value.trim() || DEFAULT_KEY;
+  localStorage.setItem("neto_cfg", JSON.stringify(CFG));
+  pullFromCloud();
+  $("#syncDialog").close();
+};
+
+/* ============================================================
+   7. INICIALIZACIÓN Y SERVICE WORKER
+============================================================ */
+renderApp();
+
+// If opened with a specific session code in URL, load it immediately
+const initialUrlParams = new URLSearchParams(window.location.search);
+if (initialUrlParams.get("code") || initialUrlParams.get("session")) {
+  pullFromCloud(true);
+} else {
+  // Silent sync to ensure cloud backup exists
+  pushToCloud();
+}
+
+// Register service worker for offline use
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(console.warn);
+  });
+}
+</script>
+</body>
+</html>

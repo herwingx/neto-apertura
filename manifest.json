@@ -1,0 +1,17 @@
+{
+  "name": "Neto Apertura · Checklist Soporte Técnico",
+  "short_name": "Neto Apertura",
+  "description": "Checklist de apertura y generador de reportes para Soporte Técnico de Tiendas Neto",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#e11d48",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
