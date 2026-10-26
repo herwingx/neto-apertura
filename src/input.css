@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@source "../index.html";
+
+@theme {
+  --color-neto-blue: #1b3d88;
+  --color-neto-orange: #f26e26;
+  --color-neto-dark: #020617;
+  --color-card: #0f172a;
+  --color-card-sub: #1e293b;
+  --color-card-border: #334155;
+}
+
+/* Custom safe area utilities for mobile devices */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Smooth touch scrolling */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.touch-scroll::-webkit-scrollbar {
+  display: none;
+}

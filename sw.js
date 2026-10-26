@@ -1,9 +1,18 @@
-const CACHE_NAME = 'neto-apertura-v1';
+const CACHE_NAME = 'neto-apertura-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.svg'
+  './dist/styles.css',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
+  './icons/apple-touch-icon.png',
+  './icons/favicon.ico',
+  './icons/favicon-32x32.png',
+  './icons/favicon-16x16.png',
+  './icons/logo-neto-clean.png',
+  './icons/logo-neto-white.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -31,4 +40,3 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((cached) => cached || fetch(event.request).catch(() => cached))
   );
 });
-
