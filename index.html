@@ -11,20 +11,30 @@
   <meta name="description" content="Checklist interactivo y generador de reportes de apertura para Soporte Técnico de Tiendas Neto">
   
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 
   <title>Apertura Neto · Soporte Técnico e Infraestructura</title>
   <link rel="stylesheet" href="dist/styles.css">
+  <script src="dist/qrcode.js"></script>
+
+  <style>
+    @media print {
+      header, nav, #toast, .no-print { display: none !important; }
+      body { background: #fff !important; color: #000 !important; padding: 0 !important; }
+      #view-report { display: block !important; }
+      #reportOutput { background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; font-size: 11pt !important; }
+    }
+  </style>
 </head>
 <body class="min-h-full bg-slate-950 text-slate-100 font-sans pb-28 pt-safe select-none">
 
   <!-- ============================================================
        TOP HEADER (Sticky & Safe)
   ============================================================ -->
-  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 px-4 pt-3 pb-2.5">
+  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 px-4 pt-3 pb-2.5 no-print">
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
       <!-- Brand & Store Tag -->
       <div class="flex items-center gap-2.5 min-w-0">
@@ -34,16 +44,21 @@
         <span class="text-[10px] font-black tracking-wider uppercase px-1.5 py-0.5 rounded bg-neto-orange text-white shrink-0">
           APERTURA
         </span>
-        <div id="headerStoreName" class="text-xs font-semibold text-amber-400 truncate max-w-[130px] sm:max-w-[200px]" title="Sucursal">
+        <div id="headerStoreName" class="text-xs font-semibold text-amber-400 truncate max-w-[120px] sm:max-w-[200px]" title="Sucursal">
           Tienda Apertura
         </div>
       </div>
 
-      <!-- Action Buttons (Install PWA + Cloud Sync) -->
+      <!-- Action Buttons (QR Code + Install PWA + Cloud Sync) -->
       <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Quick QR Share button -->
+        <button id="btnQuickQr" class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-900 border border-slate-700/80 hover:border-slate-600 text-slate-300 text-xs active:scale-95 transition shadow-sm" title="Mostrar Código QR para compartir">
+          <span>📲</span>
+        </button>
+
         <!-- Install PWA button (shown dynamically on Android / Chrome) -->
         <button id="btnInstallApp" class="hidden items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg transition duration-150 animate-pulse">
-          <span>📲</span>
+          <span>⬇️</span>
           <span>Instalar</span>
         </button>
 
@@ -76,6 +91,12 @@
          TAB 1: CHECKLIST DE APERTURA
     ========================================== -->
     <section id="view-checklist" class="space-y-3">
+      <!-- Search Input -->
+      <div class="relative">
+        <input id="checklistSearchInput" type="search" placeholder="🔍 Buscar tarea (ej. PAX, Hydra, antivirus, switch...)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange shadow-sm">
+        <button id="btnClearSearch" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs p-1">✕</button>
+      </div>
+
       <!-- Station Segmented Scrollable Control -->
       <div class="flex items-center gap-1.5 overflow-x-auto touch-scroll pb-1 -mx-3.5 px-3.5">
         <button class="station-chip active shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition duration-150" data-station="all">
@@ -237,9 +258,14 @@
 
       <!-- Conectividad e Internet -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
-        <div class="flex items-center gap-2 text-xs font-bold text-sky-400 uppercase tracking-wider">
-          <span>📡</span>
-          <span>Conectividad & Enlace</span>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-xs font-bold text-sky-400 uppercase tracking-wider">
+            <span>📡</span>
+            <span>Conectividad & Enlace</span>
+          </div>
+          <a href="https://fast.com" target="_blank" rel="noopener noreferrer" class="text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-2 py-1 rounded-lg flex items-center gap-1 transition active:scale-95" title="Abrir Fast.com para prueba de velocidad">
+            <span>⚡ Medir Velocidad</span>
+          </a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div>
@@ -314,7 +340,7 @@
     ========================================== -->
     <section id="view-report" class="space-y-3.5 hidden">
       <!-- Format Switcher -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-1.5 shadow-sm">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-1.5 shadow-sm no-print">
         <div class="grid grid-cols-3 gap-1 text-xs">
           <button class="report-fmt-btn active py-2 rounded-xl font-bold transition text-center" data-fmt="pro">
             ⭐ Resumen Pro
@@ -329,20 +355,24 @@
       </div>
 
       <!-- Action Buttons Sticky / Prominent -->
-      <div class="grid grid-cols-2 gap-2.5">
-        <button id="btnCopyReport" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition text-xs">
-          <span class="text-sm">📋</span>
-          <span id="btnCopyReportText">Copiar Reporte</span>
+      <div class="grid grid-cols-3 gap-2 no-print">
+        <button id="btnCopyReport" class="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 px-2 rounded-xl shadow-lg transition text-xs">
+          <span>📋</span>
+          <span id="btnCopyReportText">Copiar</span>
         </button>
-        <button id="btnSendWa" class="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition text-xs">
-          <span class="text-sm">📱</span>
-          <span>Enviar WhatsApp</span>
+        <button id="btnSendWa" class="flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-bold py-3 px-2 rounded-xl shadow-lg transition text-xs">
+          <span>📱</span>
+          <span>WhatsApp</span>
+        </button>
+        <button id="btnPrintReport" class="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 border border-slate-700 font-bold py-3 px-2 rounded-xl shadow-lg transition text-xs">
+          <span>📄</span>
+          <span>PDF / Print</span>
         </button>
       </div>
 
       <!-- Report Preview Box -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm">
-        <div class="flex items-center justify-between text-xs text-slate-400 pb-2 mb-2 border-b border-slate-800">
+        <div class="flex items-center justify-between text-xs text-slate-400 pb-2 mb-2 border-b border-slate-800 no-print">
           <span class="font-bold text-slate-300">Vista previa del mensaje:</span>
           <span class="text-[11px] text-neto-orange font-semibold">Listo para enviar</span>
         </div>
@@ -350,13 +380,19 @@
       </div>
 
       <!-- Share with partner button -->
-      <button id="btnShareWithColleague" class="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-2.5 px-4 rounded-xl transition text-xs active:scale-95">
-        <span>🔗</span>
-        <span>Compartir Enlace en Tiempo Real con Compañero</span>
-      </button>
+      <div class="grid grid-cols-2 gap-2 no-print">
+        <button id="btnShareWithColleague" class="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-2.5 px-3 rounded-xl transition text-xs active:scale-95">
+          <span>🔗</span>
+          <span>Compartir Enlace</span>
+        </button>
+        <button id="btnOpenQrFromReport" class="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-2.5 px-3 rounded-xl transition text-xs active:scale-95">
+          <span>📲</span>
+          <span>Ver Código QR</span>
+        </button>
+      </div>
 
       <!-- Reset button -->
-      <div class="pt-2 text-center">
+      <div class="pt-2 text-center no-print">
         <button id="btnResetApp" class="text-slate-500 hover:text-rose-400 text-xs font-semibold underline transition">
           🔄 Iniciar nueva apertura (limpiar checklist)
         </button>
@@ -368,10 +404,13 @@
   <!-- ============================================================
        BOTTOM NAVIGATION BAR (Ergonomic Thumb Access)
   ============================================================ -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 px-2 pt-2 pb-safe shadow-2xl">
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 px-2 pt-2 pb-safe shadow-2xl no-print">
     <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
-      <button class="nav-tab active flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition duration-150" data-tab="checklist">
-        <span class="nav-icon text-lg leading-none mb-1">📋</span>
+      <button class="nav-tab active relative flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition duration-150" data-tab="checklist">
+        <div class="relative inline-block">
+          <span class="nav-icon text-lg leading-none mb-1">📋</span>
+          <span id="navChecklistBadge" class="hidden absolute -top-1 -right-2.5 bg-neto-orange text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-4 text-center"></span>
+        </div>
         <span class="nav-label text-[11px] font-bold">Checklist</span>
       </button>
 
@@ -400,7 +439,34 @@
   </div>
 
   <!-- ============================================================
-       DIALOG: SUPABASE & SYNC
+       DIALOG 1: QR CODE SHARE MODAL (Offline)
+  ============================================================ -->
+  <dialog id="qrDialog" class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl p-0 w-full max-w-xs backdrop:bg-black/75 shadow-2xl mx-auto my-auto">
+    <div class="flex items-center justify-between p-4 border-b border-slate-800">
+      <h3 class="text-xs font-bold flex items-center gap-2 text-slate-200">
+        <span>📲</span>
+        <span>Escanear Sesión en Vivo</span>
+      </h3>
+      <button class="text-slate-400 hover:text-white text-base p-1" onclick="document.getElementById('qrDialog').close()">✕</button>
+    </div>
+    <div class="p-5 flex flex-col items-center text-center space-y-3.5">
+      <div id="qrCodeContainer" class="bg-white p-3.5 rounded-2xl shadow-xl flex items-center justify-center">
+        <!-- SVG QR rendered here -->
+      </div>
+      <div class="text-[11px] text-slate-400 leading-relaxed">
+        Pídele a tu compañero que abra la cámara de su teléfono para unirse a esta misma tienda.
+      </div>
+      <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 break-all select-all">
+        <span id="qrSessionCodeText"></span>
+      </div>
+      <button id="btnCopyFromQrModal" class="w-full bg-neto-blue hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+        🔗 Copiar Enlace Directo
+      </button>
+    </div>
+  </dialog>
+
+  <!-- ============================================================
+       DIALOG 2: SUPABASE & SYNC
   ============================================================ -->
   <dialog id="syncDialog" class="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl p-0 w-full max-w-sm backdrop:bg-black/70 shadow-2xl mx-auto my-auto">
     <div class="flex items-center justify-between p-4 border-b border-slate-800">
@@ -678,6 +744,7 @@
   let currentTab = "checklist";
   let currentStation = "all";
   let onlyPending = false;
+  let searchQuery = "";
   let periphMode = "station"; // 'station' | 'matrix'
   let currentPeriphStation = "GT";
 
@@ -702,7 +769,7 @@
     }, 2200);
   }
 
-  /* --- 5. SUPABASE CLOUD SYNC --- */
+  /* --- 5. SUPABASE CLOUD SYNC & NETWORK AWARENESS --- */
   let syncDebounceTimer = null;
   function setSyncUI(status, label) {
     const dot = document.getElementById("syncDot");
@@ -713,6 +780,8 @@
       dot.className = "w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]";
     } else if (status === "saving") {
       dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-ping";
+    } else if (status === "offline") {
+      dot.className = "w-2 h-2 rounded-full bg-amber-500";
     } else {
       dot.className = "w-2 h-2 rounded-full bg-slate-500";
     }
@@ -734,6 +803,10 @@
   }
 
   async function pushToCloud() {
+    if (!navigator.onLine) {
+      setSyncUI("offline", "Offline");
+      return;
+    }
     if (!CFG.url || !CFG.key || !CFG.code || CFG.code.length < 10) {
       setSyncUI("", "Local");
       return;
@@ -749,6 +822,10 @@
   }
 
   async function pullFromCloud(silent = false) {
+    if (!navigator.onLine) {
+      setSyncUI("offline", "Offline");
+      return;
+    }
     if (!CFG.url || !CFG.key || !CFG.code) return;
     try {
       setSyncUI("saving", "Cargando...");
@@ -777,11 +854,24 @@
     syncDebounceTimer = setTimeout(pushToCloud, 1800);
   }
 
-  /* --- 6. RENDER LOGIC: PROGRESS & HEADER --- */
+  // Network Status Listeners
+  window.addEventListener("online", () => {
+    setSyncUI("ok", "Nube");
+    showToast("📶 Conexión restablecida - sincronizando...");
+    pushToCloud();
+  });
+
+  window.addEventListener("offline", () => {
+    setSyncUI("offline", "Offline");
+    showToast("⚠️ Sin conexión a internet (modo offline activo)");
+  });
+
+  /* --- 6. RENDER LOGIC: PROGRESS & HEADER & BADGES --- */
   function updateProgressHeader() {
     const allItems = PHASES.flatMap(p => p.items);
     const total = allItems.length;
     const done = allItems.filter(i => STATE.checks[i.id]).length;
+    const remaining = total - done;
     const pct = total === 0 ? 0 : Math.round((done / total) * 100);
 
     const bar = document.getElementById("progressBar");
@@ -792,6 +882,17 @@
     const storeTitle = document.getElementById("headerStoreName");
     if (storeTitle) {
       storeTitle.textContent = STATE.f.tienda || "Tienda Apertura";
+    }
+
+    // Update bottom nav badge
+    const navBadge = document.getElementById("navChecklistBadge");
+    if (navBadge) {
+      if (remaining > 0) {
+        navBadge.textContent = remaining;
+        navBadge.classList.remove("hidden");
+      } else {
+        navBadge.classList.add("hidden");
+      }
     }
 
     // Update station badges in horizontal chips
@@ -818,24 +919,42 @@
 
     let html = "";
     const visiblePhases = currentStation === "all" ? PHASES : PHASES.filter(p => p.id === currentStation);
+    const q = searchQuery.trim().toLowerCase();
+
+    let matchedItemCount = 0;
 
     visiblePhases.forEach(phase => {
       const total = phase.items.length;
       const done = phase.items.filter(i => STATE.checks[i.id]).length;
       const isDone = done === total;
 
-      const visibleItems = onlyPending 
-        ? phase.items.filter(i => !STATE.checks[i.id])
-        : phase.items;
+      let visibleItems = phase.items;
 
-      if (onlyPending && visibleItems.length === 0) {
-        html += `
-        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-center">
-          <div class="text-xs font-bold text-slate-300">${phase.title}</div>
-          <div class="text-xs text-emerald-400 mt-1 font-semibold flex items-center justify-center gap-1.5">
-            <span>✓</span><span>¡Todas las ${total} tareas completadas!</span>
-          </div>
-        </div>`;
+      // Filter by search query if any
+      if (q) {
+        visibleItems = visibleItems.filter(i => 
+          i.label.toLowerCase().includes(q) || 
+          (i.rep && i.rep.toLowerCase().includes(q))
+        );
+      }
+
+      // Filter by "only pending"
+      if (onlyPending) {
+        visibleItems = visibleItems.filter(i => !STATE.checks[i.id]);
+      }
+
+      matchedItemCount += visibleItems.length;
+
+      if (visibleItems.length === 0) {
+        if (onlyPending && !q) {
+          html += `
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-center">
+            <div class="text-xs font-bold text-slate-300">${phase.title}</div>
+            <div class="text-xs text-emerald-400 mt-1 font-semibold flex items-center justify-center gap-1.5">
+              <span>✓</span><span>¡Todas las ${total} tareas completadas!</span>
+            </div>
+          </div>`;
+        }
         return;
       }
 
@@ -850,7 +969,7 @@
         </div>
 
         <div class="p-2 sm:p-3 space-y-1">
-          ${phase.note ? `
+          ${phase.note && !q ? `
             <div class="bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs p-2.5 rounded-xl font-medium mb-2 flex items-start gap-2">
               <span class="text-sm">⚠️</span>
               <span class="leading-relaxed">${phase.note}</span>
@@ -878,12 +997,19 @@
       </div>`;
     });
 
+    if (q && matchedItemCount === 0) {
+      html = `
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-400">
+        <div class="text-2xl mb-2">🔍</div>
+        No se encontraron tareas que coincidan con "<b>${q}</b>".
+      </div>`;
+    }
+
     container.innerHTML = html;
   }
 
   /* --- 8. RENDER PERIPHERALS TAB --- */
   function renderPeripherals() {
-    // Mode toggles
     const stView = document.getElementById("periphStationView");
     const mxView = document.getElementById("periphMatrixView");
     const btnSt = document.getElementById("btnPeriphModeStation");
@@ -901,7 +1027,6 @@
       btnMx.className = "flex-1 py-1.5 rounded-lg font-bold transition duration-150 bg-neto-blue text-white shadow-sm";
     }
 
-    // 1. Station Cards
     const cardsContainer = document.getElementById("periphCardsContainer");
     const c2Note = document.getElementById("caja2NoBreakNote");
     if (c2Note) {
@@ -928,7 +1053,6 @@
       cardsContainer.innerHTML = cardsHtml;
     }
 
-    // 2. Matrix Table
     const tableBody = document.getElementById("periphMatrixTableBody");
     if (tableBody) {
       let tableHtml = "";
@@ -951,7 +1075,6 @@
       tableBody.innerHTML = tableHtml;
     }
 
-    // 3. Extra Connectivity badges
     const rackBadge = document.getElementById("rackStatusBadge");
     if (rackBadge) {
       const isOk = STATE.f.rack === "Ok";
@@ -968,7 +1091,6 @@
 
   /* --- 9. RENDER STORE TAB --- */
   function renderStoreForm() {
-    // Populate form fields
     document.querySelectorAll("[data-field]").forEach(input => {
       const key = input.dataset.field;
       if (STATE.f[key] !== undefined) {
@@ -979,7 +1101,6 @@
     const obs = document.getElementById("txtObservaciones");
     if (obs) obs.value = STATE.obs || "";
 
-    // Dynamic Lists (Entregables, Pendientes, Hallazgos)
     const listSection = document.getElementById("dynamicListsSection");
     if (!listSection) return;
 
@@ -1015,7 +1136,6 @@
           `).join("")}
         </div>
 
-        <!-- Add Custom Concept -->
         <div class="flex items-center gap-2 pt-1">
           <input type="text" data-add-input="${sec.key}" placeholder="Agregar otro concepto..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange">
           <button data-add-btn="${sec.key}" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs transition active:scale-95 shrink-0">
@@ -1198,12 +1318,35 @@
     if (box) box.textContent = generateReportText();
   }
 
-  /* --- 11. SWITCH TABS NAVIGATION --- */
+  /* --- 11. QR CODE GENERATOR (OFFLINE) --- */
+  function showQrModal() {
+    triggerHaptic(10);
+    const code = CFG.code;
+    const shareUrl = window.location.origin + window.location.pathname + "?code=" + encodeURIComponent(code);
+    const qrContainer = document.getElementById("qrCodeContainer");
+    const codeText = document.getElementById("qrSessionCodeText");
+
+    if (codeText) codeText.textContent = code;
+
+    if (typeof qrcode !== "undefined" && qrContainer) {
+      try {
+        const qr = qrcode(0, "M");
+        qr.addData(shareUrl);
+        qr.make();
+        qrContainer.innerHTML = qr.createSvgTag(6, 0);
+      } catch (err) {
+        qrContainer.innerHTML = `<div class="p-4 text-slate-800 text-xs font-semibold">Error generando QR</div>`;
+      }
+    }
+
+    document.getElementById("qrDialog").showModal();
+  }
+
+  /* --- 12. SWITCH TABS NAVIGATION --- */
   function switchTab(tabId) {
     currentTab = tabId;
     triggerHaptic(8);
 
-    // Update Bottom Nav Bar active state
     document.querySelectorAll(".nav-tab").forEach(tab => {
       const active = tab.dataset.tab === tabId;
       if (active) {
@@ -1215,7 +1358,6 @@
       }
     });
 
-    // Toggle Tab Containers
     const tabMap = {
       checklist: "view-checklist",
       periph: "view-periph",
@@ -1235,7 +1377,7 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  /* --- 12. FULL INITIAL RENDER --- */
+  /* --- 13. FULL INITIAL RENDER --- */
   function renderAppFull() {
     updateProgressHeader();
     renderChecklist();
@@ -1244,7 +1386,7 @@
     updateReportOutput();
   }
 
-  /* --- 13. GLOBAL EVENT LISTENERS --- */
+  /* --- 14. GLOBAL EVENT LISTENERS --- */
   document.addEventListener("DOMContentLoaded", () => {
     renderAppFull();
 
@@ -1252,6 +1394,32 @@
     document.querySelectorAll(".nav-tab").forEach(tab => {
       tab.addEventListener("click", () => switchTab(tab.dataset.tab));
     });
+
+    // Real-Time Search in Checklist
+    const searchInput = document.getElementById("checklistSearchInput");
+    const clearSearchBtn = document.getElementById("btnClearSearch");
+
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        searchQuery = e.target.value;
+        if (searchQuery.trim()) {
+          clearSearchBtn.classList.remove("hidden");
+        } else {
+          clearSearchBtn.classList.add("hidden");
+        }
+        renderChecklist();
+      });
+    }
+
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        searchQuery = "";
+        clearSearchBtn.classList.add("hidden");
+        renderChecklist();
+        searchInput.focus();
+      });
+    }
 
     // Station Selector Chips (Checklist)
     document.querySelectorAll(".station-chip").forEach(btn => {
@@ -1433,7 +1601,7 @@
         const btnTxt = document.getElementById("btnCopyReportText");
         btnTxt.textContent = "✓ ¡Copiado!";
         showToast("✓ Reporte copiado al portapapeles");
-        setTimeout(() => { btnTxt.textContent = "Copiar Reporte"; }, 2000);
+        setTimeout(() => { btnTxt.textContent = "Copiar"; }, 2000);
       }).catch(() => {
         showToast("Selecciona el texto para copiar");
       });
@@ -1445,6 +1613,25 @@
       const text = generateReportText();
       const url = "https://wa.me/?text=" + encodeURIComponent(text);
       window.open(url, "_blank");
+    };
+
+    // Print / PDF Report
+    document.getElementById("btnPrintReport").onclick = () => {
+      triggerHaptic(15);
+      window.print();
+    };
+
+    // Quick QR Share Button in Header & Report Tab
+    document.getElementById("btnQuickQr").onclick = showQrModal;
+    document.getElementById("btnOpenQrFromReport").onclick = showQrModal;
+
+    // Copy Link from QR modal
+    document.getElementById("btnCopyFromQrModal").onclick = () => {
+      triggerHaptic(10);
+      const shareUrl = window.location.origin + window.location.pathname + "?code=" + encodeURIComponent(CFG.code);
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast("✓ Enlace de sesión copiado al portapapeles");
+      });
     };
 
     // Share with Colleague
@@ -1549,7 +1736,7 @@
     }
   });
 
-  /* --- 14. PWA INSTALL PROMPT HANDLER (ANDROID NATIVE) --- */
+  /* --- 15. PWA INSTALL PROMPT HANDLER (ANDROID NATIVE) --- */
   let deferredPrompt = null;
   const btnInstall = document.getElementById("btnInstallApp");
 
