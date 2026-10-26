@@ -81,3 +81,4 @@ grant execute on function public.neto_get_checklist(text), public.neto_save_chec
 Este proyecto se ejecuta en GitHub Pages en la cuenta `@herwingx`:
 
 URL: `https://herwingx.github.io/neto-apertura/`
+
