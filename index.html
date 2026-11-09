@@ -1,22 +1,46 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-950 text-slate-100 antialiased selection:bg-neto-orange selection:text-white">
+<html lang="es" class="h-full antialiased selection:bg-primary selection:text-primary-foreground">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#020617">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#0f172a" id="metaThemeColor">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Neto Apertura">
-  <meta name="description" content="Checklist interactivo y generador de reportes de apertura para Soporte Técnico de Tiendas Neto">
-  
+  <meta name="description" content="Checklist interactivo y generador de reportes de apertura para Soporte Técnico de Tiendas Neto · Rutas Sureste">
+
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 
-  <title>Apertura Neto · Soporte Técnico e Infraestructura</title>
+  <title>Apertura de Tiendas · Rutas Sureste · Tiendas Neto</title>
+
+  <!-- Prevent theme flash (FOUC) and sync with Rutas Sureste theme key -->
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('ruteo.theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'dark');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        document.documentElement.style.colorScheme = theme;
+        var meta = document.getElementById('metaThemeColor');
+        if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f172a' : '#ffffff');
+      } catch (e) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
   <link rel="stylesheet" href="dist/styles.css">
   <script src="dist/qrcode.js"></script>
 
@@ -29,112 +53,259 @@
     }
   </style>
 </head>
-<body class="min-h-full bg-slate-950 text-slate-100 font-sans pb-28 pt-safe select-none">
+<body class="min-h-full bg-background text-foreground font-sans pb-24 sm:pb-12 pt-safe">
 
   <!-- ============================================================
-       TOP HEADER (Sticky & Safe)
+       TOP HEADER (Shadcn Surface · Matches Rutas Sureste 1:1)
   ============================================================ -->
-  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 px-4 pt-3 pb-2.5 no-print">
-    <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
-      <!-- Brand & Store Tag -->
-      <div class="flex items-center gap-2.5 min-w-0">
-        <div class="flex items-center bg-white px-2 py-1 rounded-md shadow-sm shrink-0">
-          <img src="icons/logo-neto-clean.png" alt="Neto" class="h-4.5 w-auto object-contain">
+  <header class="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-md px-3.5 sm:px-6 pt-2.5 pb-2.5 shadow-2xs no-print transition-colors">
+    <div class="max-w-4xl mx-auto">
+      <!-- Top Row: BrandLogo + Store Info + Action Controls -->
+      <div class="flex items-center justify-between gap-2.5">
+        <!-- Brand & Active Store -->
+        <div class="flex items-center gap-2.5 min-w-0">
+          <img
+            src="icons/logo-app.png"
+            alt="Tiendas Neto"
+            width="36"
+            height="36"
+            class="h-9 w-9 rounded-xl object-contain shadow-xs border border-border/60 bg-white p-0.5 shrink-0 select-none"
+          >
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-xs sm:text-sm font-black tracking-tight text-foreground truncate">
+                Apertura de Tiendas
+              </span>
+              <span class="inline-flex items-center rounded-md bg-neto-orange/15 text-neto-orange border border-neto-orange/30 px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase shrink-0">
+                Rutas Sureste
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-muted-foreground truncate">
+              <svg class="w-3.5 h-3.5 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span id="headerStoreName" class="font-semibold text-foreground/90 truncate max-w-44 sm:max-w-72" title="Sucursal activa">
+                Tienda Apertura
+              </span>
+            </div>
+          </div>
         </div>
-        <span class="text-[10px] font-black tracking-wider uppercase px-1.5 py-0.5 rounded bg-neto-orange text-white shrink-0">
-          APERTURA
-        </span>
-        <div id="headerStoreName" class="text-xs font-semibold text-amber-400 truncate max-w-30 sm:max-w-50 title="Sucursal">
-          Tienda Apertura
+
+        <!-- Action Buttons (QR + Install PWA + Cloud Sync + Theme Toggle) -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Quick QR Share button -->
+          <button
+            id="btnQuickQr"
+            type="button"
+            aria-label="Mostrar código QR de sesión"
+            title="Mostrar código QR para compartir sesión"
+            class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-border bg-background hover:bg-accent hover:text-accent-foreground text-muted-foreground active:scale-95 transition shadow-2xs"
+          >
+            <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="5" height="5" x="3" y="3" rx="1"></rect>
+              <rect width="5" height="5" x="16" y="3" rx="1"></rect>
+              <rect width="5" height="5" x="3" y="16" rx="1"></rect>
+              <path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+              <path d="M21 21v.01"></path>
+              <path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+              <path d="M3 12h.01"></path>
+              <path d="M12 3h.01"></path>
+              <path d="M12 16v.01"></path>
+              <path d="M16 12h1"></path>
+              <path d="M21 12v.01"></path>
+              <path d="M12 21v-1"></path>
+            </svg>
+          </button>
+
+          <!-- Install PWA button (shown dynamically on Android / Chrome) -->
+          <button
+            id="btnInstallApp"
+            type="button"
+            class="hidden items-center gap-1.5 h-8 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-semibold px-2.5 rounded-lg shadow-xs transition"
+          >
+            <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" x2="12" y1="15" y2="3"></line>
+            </svg>
+            <span>Instalar</span>
+          </button>
+
+          <!-- Cloud Sync button -->
+          <button
+            id="syncModalBtn"
+            type="button"
+            title="Configurar sincronización en la nube y compartir sesión"
+            class="inline-flex items-center gap-1.5 h-8 rounded-lg border border-border bg-background hover:bg-accent hover:text-accent-foreground active:scale-95 text-foreground text-xs font-semibold px-2.5 transition shadow-2xs"
+          >
+            <span id="syncDot" class="w-2 h-2 rounded-full bg-muted-foreground"></span>
+            <span id="syncStatusText">Nube</span>
+          </button>
+
+          <!-- Theme Toggle Button (Light / Dark synced with Rutas Sureste) -->
+          <button
+            id="btnToggleTheme"
+            type="button"
+            aria-label="Cambiar tema claro u oscuro"
+            title="Cambiar tema claro / oscuro"
+            class="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-border bg-background hover:bg-accent hover:text-accent-foreground text-muted-foreground active:scale-95 transition shadow-2xs"
+          >
+            <!-- Sun Icon (shown in dark mode) -->
+            <svg id="iconSun" class="w-4 h-4 hidden dark:block text-amber-400" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="m4.93 4.93 1.41 1.41"></path>
+              <path d="m17.66 17.66 1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="m6.34 17.66-1.41 1.41"></path>
+              <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+            <!-- Moon Icon (shown in light mode) -->
+            <svg id="iconMoon" class="w-4 h-4 block dark:hidden text-slate-700" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+            </svg>
+          </button>
         </div>
       </div>
 
-      <!-- Action Buttons (QR Code + Install PWA + Cloud Sync) -->
-      <div class="flex items-center gap-1.5 shrink-0">
-        <!-- Quick QR Share button -->
-        <button id="btnQuickQr" class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-900 border border-slate-700/80 hover:border-slate-600 text-slate-300 text-xs active:scale-95 transition shadow-sm" title="Mostrar Código QR para compartir">
-          <span>📲</span>
-        </button>
-
-        <!-- Install PWA button (shown dynamically on Android / Chrome) -->
-        <button id="btnInstallApp" class="hidden items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg transition duration-150 animate-pulse">
-          <span>⬇️</span>
-          <span>Instalar</span>
-        </button>
-
-        <!-- Cloud Sync button -->
-        <button id="syncModalBtn" class="inline-flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 hover:border-slate-600 active:scale-95 text-slate-200 text-xs font-semibold px-2.5 py-1 rounded-full transition shadow-sm" title="Configurar Nube y Compartir">
-          <span id="syncDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-          <span id="syncStatusText">Nube</span>
-        </button>
+      <!-- Progress Bar Row -->
+      <div class="mt-2.5">
+        <div class="flex items-center justify-between text-[11px] font-medium text-muted-foreground mb-1">
+          <span class="flex items-center gap-1.5">
+            <span>Avance general de apertura</span>
+          </span>
+          <span id="progressPctText" class="font-bold text-primary tabular-nums">0% (0/68)</span>
+        </div>
+        <div class="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+          <div id="progressBar" class="h-full bg-linear-to-r from-primary via-neto-orange to-emerald-500 transition-all duration-300 w-0"></div>
+        </div>
       </div>
-    </div>
 
-    <!-- Progress Bar -->
-    <div class="max-w-3xl mx-auto mt-2.5">
-      <div class="flex items-center justify-between text-[11px] font-medium text-slate-400 mb-1">
-        <span>Avance general de apertura</span>
-        <span id="progressPctText" class="font-bold text-amber-400">0% (0/68)</span>
-      </div>
-      <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-        <div id="progressBar" class="h-full bg-linear-to-r from-neto-orange via-amber-400 to-emerald-500 transition-all duration-300 w-0"></div>
+      <!-- Desktop Segmented TabsList (Matches Rutas Sureste shadcn TabsList) -->
+      <div class="hidden sm:grid sm:grid-cols-4 gap-1 rounded-xl bg-muted/70 p-1 border border-border mt-2.5" role="tablist" aria-label="Secciones de apertura">
+        <button type="button" class="nav-tab inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all" data-tab="checklist">
+          <svg class="w-4 h-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <path d="m9 14 2 2 4-4"></path>
+          </svg>
+          <span>Checklist</span>
+          <span id="desktopChecklistBadge" class="hidden rounded-full bg-neto-orange text-white text-[10px] font-bold px-1.5 py-0.2 tabular-nums"></span>
+        </button>
+        <button type="button" class="nav-tab inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all" data-tab="periph">
+          <svg class="w-4 h-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="14" x="2" y="3" rx="2"></rect>
+            <line x1="8" x2="16" y1="21" y2="21"></line>
+            <line x1="12" x2="12" y1="17" y2="21"></line>
+          </svg>
+          <span>Equipos y Matriz</span>
+        </button>
+        <button type="button" class="nav-tab inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all" data-tab="store">
+          <svg class="w-4 h-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path>
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+            <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"></path>
+            <path d="M2 7h20"></path>
+          </svg>
+          <span>Tienda y Red</span>
+        </button>
+        <button type="button" class="nav-tab inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all" data-tab="report">
+          <svg class="w-4 h-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m22 2-7 20-4-9-9-4Z"></path>
+            <path d="M22 2 11 13"></path>
+          </svg>
+          <span>Reporte y Bot</span>
+        </button>
       </div>
     </div>
   </header>
 
   <!-- ============================================================
-       MAIN CONTENT (4 Distinct Tabs)
+       MAIN CONTENT (4 Distinct Views · Shadcn Cards)
   ============================================================ -->
-  <main class="max-w-3xl mx-auto px-3.5 pt-3">
+  <main class="max-w-4xl mx-auto px-3.5 sm:px-6 pt-4">
 
     <!-- ==========================================
          TAB 1: CHECKLIST DE APERTURA
     ========================================== -->
-    <section id="view-checklist" class="space-y-3">
-      <!-- Search Input -->
-      <div class="relative">
-        <input id="checklistSearchInput" type="search" placeholder="🔍 Buscar tarea (ej. PAX, Hydra, antivirus, switch...)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange shadow-sm">
-        <button id="btnClearSearch" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs p-1">✕</button>
-      </div>
+    <section id="view-checklist" class="space-y-3.5">
+      <!-- Search & Filter Bar Card -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-3 shadow-xs space-y-2.5">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <!-- Search Input -->
+          <div class="relative flex-1">
+            <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input
+              id="checklistSearchInput"
+              type="search"
+              placeholder="Buscar tarea (ej. PAX, Hydra, antivirus, switch...)"
+              class="flex h-9 w-full rounded-lg border border-input bg-background pl-9 pr-8 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition"
+            >
+            <button
+              id="btnClearSearch"
+              type="button"
+              aria-label="Limpiar búsqueda"
+              class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-md"
+            >
+              <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18"></path>
+                <path d="m6 6 12 12"></path>
+              </svg>
+            </button>
+          </div>
 
-      <!-- Station Segmented Scrollable Control -->
-      <div class="flex items-center gap-1.5 overflow-x-auto touch-scroll pb-1 -mx-3.5 px-3.5">
-        <button class="station-chip active shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition duration-150" data-station="all">
-          Todos los Equipos
-        </button>
-        <button class="station-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition duration-150" data-station="rack">
-          1 · Rack (0/5)
-        </button>
-        <button class="station-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition duration-150" data-station="ger">
-          2 · WS_GERENTE (0/22)
-        </button>
-        <button class="station-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition duration-150" data-station="c1">
-          3 · WS_CAJA01 (0/19)
-        </button>
-        <button class="station-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition duration-150" data-station="c2">
-          4 · WS_CAJA02 (0/19)
-        </button>
-        <button class="station-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition duration-150" data-station="radio">
-          5 · Radio Neto (0/3)
-        </button>
-        <button class="station-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition duration-150" data-station="cierre">
-          6 · Cierre (0/2)
-        </button>
-      </div>
-
-      <!-- Quick Filter Bar -->
-      <div class="flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs">
-        <div class="text-slate-400 font-medium flex items-center gap-1.5">
-          <span>Vista de tareas:</span>
-          <span id="filterStatusBadge" class="text-slate-200 font-semibold">Todas</span>
+          <!-- Quick Filter Toggle ("Solo pendientes") -->
+          <div class="flex items-center justify-between sm:justify-end gap-2">
+            <div class="text-xs text-muted-foreground flex items-center gap-1.5 sm:hidden">
+              <span>Mostrando:</span>
+              <span id="filterStatusBadge" class="text-foreground font-semibold">Todas</span>
+            </div>
+            <button
+              id="toggleFilterBtn"
+              type="button"
+              class="inline-flex items-center justify-center gap-1.5 h-9 rounded-lg border border-border bg-secondary/70 hover:bg-secondary text-secondary-foreground font-semibold px-3 text-xs transition active:scale-95 shrink-0"
+            >
+              <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+              <span id="filterBtnText">Solo pendientes</span>
+            </button>
+          </div>
         </div>
-        <button id="toggleFilterBtn" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold px-2.5 py-1 rounded-lg border border-slate-700 transition">
-          <span id="filterBtnIcon">⏳</span>
-          <span id="filterBtnText">Solo pendientes</span>
-        </button>
+
+        <!-- Station Segmented Scrollable Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto touch-scroll pt-0.5">
+          <button type="button" class="station-chip active shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition duration-150" data-station="all">
+            Todos los Equipos
+          </button>
+          <button type="button" class="station-chip shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition duration-150" data-station="rack">
+            1 · Rack (0/5)
+          </button>
+          <button type="button" class="station-chip shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition duration-150" data-station="ger">
+            2 · WS_GERENTE (0/22)
+          </button>
+          <button type="button" class="station-chip shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition duration-150" data-station="c1">
+            3 · WS_CAJA01 (0/19)
+          </button>
+          <button type="button" class="station-chip shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition duration-150" data-station="c2">
+            4 · WS_CAJA02 (0/19)
+          </button>
+          <button type="button" class="station-chip shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition duration-150" data-station="radio">
+            5 · Radio Neto (0/3)
+          </button>
+          <button type="button" class="station-chip shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition duration-150" data-station="cierre">
+            6 · Cierre (0/2)
+          </button>
+        </div>
       </div>
 
-      <!-- Checklist Container -->
+      <!-- Checklist Phases Container -->
       <div id="checklistContainer" class="space-y-3">
         <!-- Rendered dynamically -->
       </div>
@@ -144,58 +315,83 @@
          TAB 2: MATRIZ DE PERIFÉRICOS & EQUIPOS
     ========================================== -->
     <section id="view-periph" class="space-y-3.5 hidden">
-      <!-- View mode switch: Por Estación vs Matriz Completa -->
-      <div class="flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-xl p-1 text-xs">
-        <button id="btnPeriphModeStation" class="flex-1 py-1.5 rounded-lg font-bold transition duration-150 bg-neto-blue text-white shadow-sm">
-          📱 Por Estación
+      <!-- View Mode Switcher: Por Estación vs Matriz Global -->
+      <div class="grid grid-cols-2 gap-1 rounded-xl bg-card p-1 border border-border shadow-2xs text-xs">
+        <button id="btnPeriphModeStation" type="button" class="inline-flex items-center justify-center gap-2 py-2 rounded-lg font-semibold transition duration-150 bg-primary text-primary-foreground shadow-xs">
+          <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect>
+            <line x1="12" x2="12.01" y1="18" y2="18"></line>
+          </svg>
+          <span>Por Estación</span>
         </button>
-        <button id="btnPeriphModeMatrix" class="flex-1 py-1.5 rounded-lg font-bold transition duration-150 text-slate-400 hover:text-slate-200">
-          📊 Matriz Global
+        <button id="btnPeriphModeMatrix" type="button" class="inline-flex items-center justify-center gap-2 py-2 rounded-lg font-semibold transition duration-150 text-muted-foreground hover:text-foreground">
+          <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+            <path d="M3 9h18"></path>
+            <path d="M3 15h18"></path>
+            <path d="M9 3v18"></path>
+            <path d="M15 3v18"></path>
+          </svg>
+          <span>Matriz Global</span>
         </button>
       </div>
 
-      <!-- Tip Banner -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-start gap-2.5 text-xs text-slate-300">
-        <span class="text-amber-400 text-base">💡</span>
-        <div class="leading-relaxed">
-          Toca cada periférico para alternar su estado:
-          <span class="inline-flex items-center gap-1 font-semibold text-emerald-400">🟢 Ok</span> ➔ 
-          <span class="inline-flex items-center gap-1 font-semibold text-slate-400">⚪ N/A</span> ➔ 
-          <span class="inline-flex items-center gap-1 font-semibold text-rose-400">🔴 Falla</span> ➔ 
-          <span class="inline-flex items-center gap-1 font-semibold text-amber-400">🟠 Sin Eq.</span>
+      <!-- Status Legend Banner -->
+      <div class="rounded-xl border border-border bg-card p-3 flex items-center justify-between flex-wrap gap-2 text-xs shadow-2xs">
+        <div class="flex items-center gap-2 text-muted-foreground font-medium">
+          <svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+          </svg>
+          <span>Toca cada periférico para alternar su estado operativo:</span>
+        </div>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">Ok</span>
+          <span class="text-muted-foreground">→</span>
+          <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold bg-secondary text-muted-foreground border border-border">N/A</span>
+          <span class="text-muted-foreground">→</span>
+          <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">Falla</span>
+          <span class="text-muted-foreground">→</span>
+          <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">Sin Eq.</span>
         </div>
       </div>
 
-      <!-- Mode 1: Por Estación (Tarjetas táctiles ergonómicas) -->
+      <!-- Mode 1: Por Estación -->
       <div id="periphStationView" class="space-y-3">
-        <!-- Station Tabs -->
+        <!-- Station Selector Tabs -->
         <div class="grid grid-cols-3 gap-2">
-          <button class="periph-st-tab active py-2 rounded-xl text-xs font-bold border transition text-center" data-pst="GT">
+          <button type="button" class="periph-st-tab active py-2.5 px-3 rounded-xl text-xs font-bold border transition text-center shadow-2xs" data-pst="GT">
             WS_GERENTE
           </button>
-          <button class="periph-st-tab py-2 rounded-xl text-xs font-bold border transition text-center" data-pst="C01">
+          <button type="button" class="periph-st-tab py-2.5 px-3 rounded-xl text-xs font-bold border transition text-center shadow-2xs" data-pst="C01">
             WS_CAJA01
           </button>
-          <button class="periph-st-tab py-2 rounded-xl text-xs font-bold border transition text-center" data-pst="C02">
+          <button type="button" class="periph-st-tab py-2.5 px-3 rounded-xl text-xs font-bold border transition text-center shadow-2xs" data-pst="C02">
             WS_CAJA02
           </button>
         </div>
 
-        <div id="caja2NoBreakNote" class="hidden bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs p-2.5 rounded-xl font-medium">
-          ⚠️ <b>Especificación oficial:</b> Caja 02 por diseño arquitectónico y eléctrico <b>NO lleva No-Break</b> (inicia en N/A).
+        <div id="caja2NoBreakNote" class="hidden rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs p-3 font-medium flex items-start gap-2">
+          <svg class="w-4 h-4 shrink-0 mt-0.5 text-amber-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+            <path d="M12 9v4"></path>
+            <path d="M12 17h.01"></path>
+          </svg>
+          <span><b>Especificación oficial:</b> Caja 02 por diseño arquitectónico y eléctrico <b>NO lleva No-Break</b> (inicia en N/A).</span>
         </div>
 
-        <!-- Peripherals List for Active Station -->
-        <div id="periphCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <!-- Peripherals Cards Grid -->
+        <div id="periphCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <!-- Rendered dynamically -->
         </div>
       </div>
 
       <!-- Mode 2: Matriz Global Compacta -->
-      <div id="periphMatrixView" class="hidden bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+      <div id="periphMatrixView" class="hidden rounded-xl border border-border bg-card text-card-foreground overflow-hidden shadow-xs">
         <div class="overflow-x-auto touch-scroll">
           <table class="w-full text-xs text-left">
-            <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
+            <thead class="bg-muted/60 text-muted-foreground border-b border-border uppercase text-[10px] tracking-wider font-bold">
               <tr>
                 <th class="p-3">Periférico</th>
                 <th class="p-3 text-center">GT</th>
@@ -203,7 +399,7 @@
                 <th class="p-3 text-center">C02</th>
               </tr>
             </thead>
-            <tbody id="periphMatrixTableBody" class="divide-y divide-slate-800/60 font-medium">
+            <tbody id="periphMatrixTableBody" class="divide-y divide-border font-medium">
               <!-- Rendered dynamically -->
             </tbody>
           </table>
@@ -211,16 +407,24 @@
       </div>
 
       <!-- Extra Connectivity Controls (Rack & VPN) -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-3">
-        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Comunicaciones & Red</h4>
-        <div class="grid grid-cols-2 gap-2.5">
-          <button id="toggleRackStatusBtn" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 active:scale-95 transition">
-            <span class="text-[10px] text-slate-400 font-semibold mb-0.5">Rack de Comunicaciones</span>
-            <span id="rackStatusBadge" class="text-xs font-black text-emerald-400">Ok ✓</span>
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-xs space-y-3">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-primary" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect>
+            <rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect>
+            <line x1="6" x2="6.01" y1="6" y2="6"></line>
+            <line x1="6" x2="6.01" y1="18" y2="18"></line>
+          </svg>
+          <h4 class="text-xs font-bold text-foreground uppercase tracking-wider">Infraestructura de Comunicaciones y Red</h4>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <button id="toggleRackStatusBtn" type="button" class="flex flex-col items-center justify-center p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border active:scale-95 transition">
+            <span class="text-[11px] text-muted-foreground font-semibold mb-1">Rack de Comunicaciones</span>
+            <span id="rackStatusBadge" class="text-xs font-black text-emerald-600 dark:text-emerald-400">Ok ✓</span>
           </button>
-          <button id="toggleVpnStatusBtn" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 active:scale-95 transition">
-            <span class="text-[10px] text-slate-400 font-semibold mb-0.5">Balanceo VPN</span>
-            <span id="vpnStatusBadge" class="text-xs font-black text-emerald-400">Activo (Ok)</span>
+          <button id="toggleVpnStatusBtn" type="button" class="flex flex-col items-center justify-center p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border active:scale-95 transition">
+            <span class="text-[11px] text-muted-foreground font-semibold mb-1">Balanceo VPN</span>
+            <span id="vpnStatusBadge" class="text-xs font-black text-emerald-600 dark:text-emerald-400">Activo (Ok)</span>
           </button>
         </div>
       </div>
@@ -229,181 +433,277 @@
     <!-- ==========================================
          TAB 3: DATOS DE TIENDA & RED
     ========================================== -->
-    <section id="view-store" class="space-y-3.5 hidden">
-      <!-- Datos Principales -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
-        <div class="flex items-center gap-2 text-xs font-bold text-neto-orange uppercase tracking-wider">
-          <span>🏪</span>
-          <span>Identificación de Sucursal</span>
+    <section id="view-store" class="space-y-4 hidden">
+      <!-- Identificación de Sucursal + Buscador Supabase Rutas Sureste -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-xs space-y-3.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider">
+            <svg class="w-4 h-4 text-neto-orange" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path>
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+              <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"></path>
+              <path d="M2 7h20"></path>
+            </svg>
+            <span>Identificación de Sucursal</span>
+          </div>
+          <span id="catalogStoreCountBadge" class="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground border border-border">
+            Catálogo Rutas Sureste
+          </span>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+
+        <!-- Buscador inteligente conectado a Supabase (rutas_sureste.tiendas) -->
+        <div class="relative">
+          <label for="storeCatalogSearch" class="block text-xs font-semibold text-muted-foreground mb-1">
+            Autocompletar desde Catálogo Oficial Rutas Sureste (opcional)
+          </label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input
+              id="storeCatalogSearch"
+              type="search"
+              autocomplete="off"
+              placeholder="Escribe ECO o nombre (ej. 1708, Comalapa, Tuxtla, Tapachula...)"
+              class="flex h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition"
+            >
+          </div>
+          <!-- Dropdown results -->
+          <div id="storeCatalogResults" class="hidden absolute z-30 left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground shadow-lg divide-y divide-border">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">No. y Nombre de Tienda</label>
-            <input type="text" data-field="tienda" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange" placeholder="Ej. 1712 Jerez Centro Juárez">
+            <label class="block text-muted-foreground font-semibold mb-1">No. y Nombre de Tienda</label>
+            <input type="text" data-field="tienda" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. 1708 Comalapa Mercado">
           </div>
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Fecha de Visita</label>
-            <input type="date" data-field="fecha" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-neto-orange">
+            <label class="block text-muted-foreground font-semibold mb-1">Fecha de Visita</label>
+            <input type="date" data-field="fecha" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition">
           </div>
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Zona SIAN</label>
-            <input type="text" data-field="sian" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange" placeholder="Ej. Zacatecas 2">
+            <label class="block text-muted-foreground font-semibold mb-1">Zona SIAN</label>
+            <input type="text" data-field="sian" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. Chiapas Meseta Comiteca">
           </div>
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Región</label>
-            <input type="text" data-field="region" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange" placeholder="Ej. Occidente Bajío">
+            <label class="block text-muted-foreground font-semibold mb-1">Región</label>
+            <input type="text" data-field="region" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. Chiapas / Sureste">
           </div>
         </div>
       </div>
 
       <!-- Conectividad e Internet -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2 text-xs font-bold text-sky-400 uppercase tracking-wider">
-            <span>📡</span>
-            <span>Conectividad & Enlace</span>
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-xs space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider">
+            <svg class="w-4 h-4 text-sky-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h.01"></path>
+              <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+              <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+              <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+            </svg>
+            <span>Conectividad y Enlace</span>
           </div>
-          <a href="https://fast.com" target="_blank" rel="noopener noreferrer" class="text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-2 py-1 rounded-lg flex items-center gap-1 transition active:scale-95" title="Abrir Fast.com para prueba de velocidad">
-            <span>⚡ Medir Velocidad</span>
+          <a href="https://fast.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-[11px] font-semibold bg-secondary hover:bg-accent text-foreground border border-border px-2.5 py-1 rounded-lg transition active:scale-95" title="Abrir Fast.com para prueba de velocidad">
+            <svg class="w-3.5 h-3.5 text-sky-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+            <span>Medir Velocidad (Fast.com)</span>
           </a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Proveedor de Internet (ISP)</label>
-            <input type="text" data-field="isp" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400" placeholder="Ej. Telmex / Totalplay / Provisional">
+            <label class="block text-muted-foreground font-semibold mb-1">Proveedor de Internet (ISP)</label>
+            <input type="text" data-field="isp" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. Telmex / Totalplay / Provisional">
           </div>
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Tipo de Servicio</label>
-            <input type="text" data-field="svc" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400" placeholder="Ej. Fibra Óptica / Módem 4G">
+            <label class="block text-muted-foreground font-semibold mb-1">Tipo de Servicio</label>
+            <input type="text" data-field="svc" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. Fibra Óptica / Módem 4G">
           </div>
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">SpeedTest (Mbps)</label>
-            <input type="text" data-field="speed" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400" placeholder="Ej. 120 Mbps">
+            <label class="block text-muted-foreground font-semibold mb-1">SpeedTest (Mbps)</label>
+            <input type="text" data-field="speed" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. 120">
           </div>
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Modelo Fortinet</label>
-            <input type="text" data-field="fortinet" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400" placeholder="Ej. 40F">
+            <label class="block text-muted-foreground font-semibold mb-1">Modelo Fortinet</label>
+            <input type="text" data-field="fortinet" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. 40F">
           </div>
         </div>
       </div>
 
       <!-- Versiones de Software -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
-        <div class="flex items-center gap-2 text-xs font-bold text-purple-400 uppercase tracking-wider">
-          <span>⚙️</span>
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-xs space-y-3">
+        <div class="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider">
+          <svg class="w-4 h-4 text-purple-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
           <span>Versiones de Software</span>
         </div>
         <div class="grid grid-cols-2 gap-3 text-xs">
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Imagen del SO</label>
-            <input type="text" data-field="imagen" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-400" placeholder="Ej. 1063">
+            <label class="block text-muted-foreground font-semibold mb-1">Imagen del SO</label>
+            <input type="text" data-field="imagen" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. 1063">
           </div>
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Cambios Hydra</label>
-            <input type="text" data-field="hydra" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-400" placeholder="Ej. 1107">
+            <label class="block text-muted-foreground font-semibold mb-1">Cambios Hydra</label>
+            <input type="text" data-field="hydra" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. 1107">
           </div>
         </div>
       </div>
 
       <!-- Responsables -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
-        <div class="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
-          <span>🧑🏻‍💻</span>
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-xs space-y-3">
+        <div class="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider">
+          <svg class="w-4 h-4 text-emerald-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
           <span>Responsables de Entrega y Recepción</span>
         </div>
-        <div class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Ingeniero de Soporte Técnico (Entrega)</label>
-            <input type="text" data-field="ing" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-400" placeholder="Nombre completo del ingeniero">
+            <label class="block text-muted-foreground font-semibold mb-1">Ingeniero de Soporte Técnico (Entrega)</label>
+            <input type="text" data-field="ing" list="engineersDatalist" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Nombre completo del ingeniero">
+            <datalist id="engineersDatalist"></datalist>
           </div>
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Calidad Operativa (Recibe Tienda)</label>
-            <input type="text" data-field="co" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-400" placeholder="Nombre de quien recibe la tienda">
+            <label class="block text-muted-foreground font-semibold mb-1">Calidad Operativa (Recibe Tienda)</label>
+            <input type="text" data-field="co" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Nombre de quien recibe la tienda">
           </div>
         </div>
       </div>
 
       <!-- Entregables, Pendientes y Hallazgos Dinámicos -->
-      <div id="dynamicListsSection" class="space-y-3">
+      <div id="dynamicListsSection" class="space-y-3.5">
         <!-- Rendered dynamically -->
       </div>
 
       <!-- Observaciones -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-2">
-        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">📝 Observaciones Adicionales</label>
-        <textarea id="txtObservaciones" rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange" placeholder="Notas adicionales que aparecerán en el reporte final..."></textarea>
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-xs space-y-2">
+        <label for="txtObservaciones" class="flex items-center gap-2 text-xs font-bold text-foreground uppercase tracking-wider">
+          <svg class="w-4 h-4 text-muted-foreground" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+          </svg>
+          <span>Observaciones Adicionales</span>
+        </label>
+        <textarea id="txtObservaciones" rows="3" class="flex w-full rounded-lg border border-input bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Notas adicionales que aparecerán en el reporte final..."></textarea>
       </div>
     </section>
 
     <!-- ==========================================
-         TAB 4: REPORTE WHATSAPP
+         TAB 4: REPORTE & BOT DE TELEGRAM
     ========================================== -->
     <section id="view-report" class="space-y-3.5 hidden">
       <!-- Format Switcher -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-1.5 shadow-sm no-print">
+      <div class="rounded-xl border border-border bg-card p-1 shadow-2xs no-print">
         <div class="grid grid-cols-3 gap-1 text-xs">
-          <button class="report-fmt-btn active py-2 rounded-xl font-bold transition text-center" data-fmt="pro">
-            ⭐ Resumen Pro
+          <button type="button" class="report-fmt-btn active inline-flex items-center justify-center gap-1.5 py-2 rounded-lg font-semibold transition text-center" data-fmt="pro">
+            <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span>Resumen Pro</span>
           </button>
-          <button class="report-fmt-btn py-2 rounded-xl font-bold transition text-center" data-fmt="corto">
-            ⚡ Corto
+          <button type="button" class="report-fmt-btn inline-flex items-center justify-center gap-1.5 py-2 rounded-lg font-semibold transition text-center" data-fmt="corto">
+            <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+            <span>Ejecutivo Corto</span>
           </button>
-          <button class="report-fmt-btn py-2 rounded-xl font-bold transition text-center" data-fmt="full">
-            📋 SIAN
+          <button type="button" class="report-fmt-btn inline-flex items-center justify-center gap-1.5 py-2 rounded-lg font-semibold transition text-center" data-fmt="full">
+            <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" x2="8" y1="13" y2="13"></line>
+              <line x1="16" x2="8" y1="17" y2="17"></line>
+            </svg>
+            <span>SIAN Completo</span>
           </button>
         </div>
       </div>
 
-      <!-- Botón Primario: Publicar con Bot de Telegram (Slack + WhatsApp + Fotos) -->
-      <div class="no-print mb-2">
-        <button id="btnOpenTelegramBot" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 hover:from-blue-500 hover:to-indigo-500 active:scale-98 text-white font-black py-3.5 px-4 rounded-xl shadow-lg shadow-blue-500/20 transition text-sm">
-          <span class="text-lg">🤖</span>
+      <!-- Primary CTA: Publicar con Bot de Telegram (Slack + WhatsApp + +80 Fotos) -->
+      <div class="no-print">
+        <button id="btnOpenTelegramBot" type="button" class="w-full flex items-center justify-center gap-2.5 bg-primary hover:bg-primary/90 active:scale-[0.99] text-primary-foreground font-bold py-3.5 px-4 rounded-xl shadow-md transition text-xs sm:text-sm">
+          <svg class="w-5 h-5 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m22 2-7 20-4-9-9-4Z"></path>
+            <path d="M22 2 11 13"></path>
+          </svg>
           <span>Publicar con Bot de Telegram (+80 Fotos)</span>
-          <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full font-bold ml-1">Slack + WA</span>
+          <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Slack + WA</span>
         </button>
       </div>
 
-      <!-- Action Buttons Sticky / Prominent -->
-      <div class="grid grid-cols-3 gap-2 no-print">
-        <button id="btnCopyReport" class="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 px-2 rounded-xl shadow-lg transition text-xs">
-          <span>📋</span>
+      <!-- Secondary Action Buttons -->
+      <div class="grid grid-cols-3 gap-2.5 no-print">
+        <button id="btnCopyReport" type="button" class="inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-semibold py-2.5 px-3 rounded-xl shadow-xs transition text-xs">
+          <svg class="w-4 h-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+          </svg>
           <span id="btnCopyReportText">Copiar</span>
         </button>
-        <button id="btnSendWa" class="flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-bold py-3 px-2 rounded-xl shadow-lg transition text-xs">
-          <span>📱</span>
+        <button id="btnSendWa" type="button" class="inline-flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-semibold py-2.5 px-3 rounded-xl shadow-xs transition text-xs">
+          <svg class="w-4 h-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
           <span>WhatsApp</span>
         </button>
-        <button id="btnPrintReport" class="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 border border-slate-700 font-bold py-3 px-2 rounded-xl shadow-lg transition text-xs">
-          <span>📄</span>
+        <button id="btnPrintReport" type="button" class="inline-flex items-center justify-center gap-1.5 bg-card hover:bg-accent active:scale-95 text-foreground border border-border font-semibold py-2.5 px-3 rounded-xl shadow-xs transition text-xs">
+          <svg class="w-4 h-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect width="12" height="8" x="6" y="14"></rect>
+          </svg>
           <span>PDF / Print</span>
         </button>
       </div>
 
-      <!-- Report Preview Box -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm">
-        <div class="flex items-center justify-between text-xs text-slate-400 pb-2 mb-2 border-b border-slate-800 no-print">
-          <span class="font-bold text-slate-300">Vista previa del mensaje:</span>
-          <span class="text-[11px] text-neto-orange font-semibold">Listo para enviar</span>
+      <!-- Report Preview Card -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-xs">
+        <div class="flex items-center justify-between text-xs text-muted-foreground pb-2.5 mb-2.5 border-b border-border no-print">
+          <span class="font-bold text-foreground">Vista previa del reporte oficial</span>
+          <span class="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Listo para enviar
+          </span>
         </div>
-        <pre id="reportOutput" class="text-xs text-slate-200 font-mono whitespace-pre-wrap wrap-break-words leading-relaxed select-text"></pre>
+        <pre id="reportOutput" class="text-xs text-foreground font-mono whitespace-pre-wrap wrap-break-words leading-relaxed select-text"></pre>
       </div>
 
-      <!-- Share with partner button -->
-      <div class="grid grid-cols-2 gap-2 no-print">
-        <button id="btnShareWithColleague" class="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-2.5 px-3 rounded-xl transition text-xs active:scale-95">
-          <span>🔗</span>
+      <!-- Collaboration Actions -->
+      <div class="grid grid-cols-2 gap-2.5 no-print">
+        <button id="btnShareWithColleague" type="button" class="inline-flex items-center justify-center gap-2 bg-card hover:bg-accent border border-border text-foreground font-semibold py-2.5 px-3 rounded-xl transition text-xs active:scale-95 shadow-2xs">
+          <svg class="w-4 h-4 text-primary" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
           <span>Compartir Enlace</span>
         </button>
-        <button id="btnOpenQrFromReport" class="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-2.5 px-3 rounded-xl transition text-xs active:scale-95">
-          <span>📲</span>
+        <button id="btnOpenQrFromReport" type="button" class="inline-flex items-center justify-center gap-2 bg-card hover:bg-accent border border-border text-foreground font-semibold py-2.5 px-3 rounded-xl transition text-xs active:scale-95 shadow-2xs">
+          <svg class="w-4 h-4 text-primary" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="5" height="5" x="3" y="3" rx="1"></rect>
+            <rect width="5" height="5" x="16" y="3" rx="1"></rect>
+            <rect width="5" height="5" x="3" y="16" rx="1"></rect>
+            <path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+          </svg>
           <span>Ver Código QR</span>
         </button>
       </div>
 
-      <!-- Reset button -->
+      <!-- Reset Button -->
       <div class="pt-2 text-center no-print">
-        <button id="btnResetApp" class="text-slate-500 hover:text-rose-400 text-xs font-semibold underline transition">
-          🔄 Iniciar nueva apertura (limpiar checklist)
+        <button id="btnResetApp" type="button" class="inline-flex items-center gap-1.5 text-muted-foreground hover:text-destructive text-xs font-semibold underline-offset-4 hover:underline transition">
+          <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          <span>Iniciar nueva apertura (limpiar checklist)</span>
         </button>
       </div>
     </section>
@@ -411,118 +711,159 @@
   </main>
 
   <!-- ============================================================
-       BOTTOM NAVIGATION BAR (Ergonomic Thumb Access)
+       MOBILE BOTTOM NAVIGATION BAR (Matches Rutas Sureste BottomNav.jsx)
   ============================================================ -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 px-2 pt-2 pb-safe shadow-2xl no-print">
-    <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
-      <button class="nav-tab active relative flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition duration-150" data-tab="checklist">
-        <div class="relative inline-block">
-          <span class="nav-icon text-lg leading-none mb-1">📋</span>
-          <span id="navChecklistBadge" class="hidden absolute -top-1 -right-2.5 bg-neto-orange text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-4 text-center"></span>
+  <nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border pb-safe select-none no-print" aria-label="Navegación principal móvil">
+    <div class="grid grid-cols-4 h-14 max-w-md mx-auto">
+      <button type="button" class="nav-tab relative flex flex-col items-center justify-center gap-0.5 transition-colors" data-tab="checklist">
+        <span class="nav-indicator absolute top-0 inset-x-3 h-0.5 bg-primary rounded-b-full"></span>
+        <div class="relative inline-flex">
+          <svg class="w-5 h-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <path d="m9 14 2 2 4-4"></path>
+          </svg>
+          <span id="navChecklistBadge" class="hidden absolute -top-1.5 -right-3 bg-neto-orange text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-4 text-center tabular-nums"></span>
         </div>
-        <span class="nav-label text-[11px] font-bold">Checklist</span>
+        <span class="text-[10px] tracking-tight font-bold">Checklist</span>
       </button>
 
-      <button class="nav-tab flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition duration-150" data-tab="periph">
-        <span class="nav-icon text-lg leading-none mb-1">🖲️</span>
-        <span class="nav-label text-[11px] font-bold">Equipos</span>
+      <button type="button" class="nav-tab relative flex flex-col items-center justify-center gap-0.5 transition-colors" data-tab="periph">
+        <span class="nav-indicator hidden absolute top-0 inset-x-3 h-0.5 bg-primary rounded-b-full"></span>
+        <svg class="w-5 h-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="20" height="14" x="2" y="3" rx="2"></rect>
+          <line x1="8" x2="16" y1="21" y2="21"></line>
+          <line x1="12" x2="12" y1="17" y2="21"></line>
+        </svg>
+        <span class="text-[10px] tracking-tight font-medium">Equipos</span>
       </button>
 
-      <button class="nav-tab flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition duration-150" data-tab="store">
-        <span class="nav-icon text-lg leading-none mb-1">🏪</span>
-        <span class="nav-label text-[11px] font-bold">Tienda</span>
+      <button type="button" class="nav-tab relative flex flex-col items-center justify-center gap-0.5 transition-colors" data-tab="store">
+        <span class="nav-indicator hidden absolute top-0 inset-x-3 h-0.5 bg-primary rounded-b-full"></span>
+        <svg class="w-5 h-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path>
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+          <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"></path>
+          <path d="M2 7h20"></path>
+        </svg>
+        <span class="text-[10px] tracking-tight font-medium">Tienda</span>
       </button>
 
-      <button class="nav-tab flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition duration-150" data-tab="report">
-        <span class="nav-icon text-lg leading-none mb-1">📤</span>
-        <span class="nav-label text-[11px] font-bold">Reporte</span>
+      <button type="button" class="nav-tab relative flex flex-col items-center justify-center gap-0.5 transition-colors" data-tab="report">
+        <span class="nav-indicator hidden absolute top-0 inset-x-3 h-0.5 bg-primary rounded-b-full"></span>
+        <svg class="w-5 h-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m22 2-7 20-4-9-9-4Z"></path>
+          <path d="M22 2 11 13"></path>
+        </svg>
+        <span class="text-[10px] tracking-tight font-medium">Reporte</span>
       </button>
     </div>
   </nav>
 
   <!-- ============================================================
-       TOAST NOTIFICATION (Float & Smooth)
+       TOAST NOTIFICATION
   ============================================================ -->
-  <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-3 transition-all duration-300 bg-slate-900/95 border border-slate-700 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl backdrop-blur-md text-center max-w-[90vw] whitespace-nowrap">
+  <div id="toast" role="status" aria-live="polite" class="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-3 transition-all duration-300 bg-foreground text-background text-xs font-semibold px-4 py-2.5 rounded-full shadow-xl text-center max-w-[90vw] whitespace-nowrap">
     Mensaje
   </div>
 
   <!-- ============================================================
-       DIALOG 1: QR CODE SHARE MODAL (Offline)
+       DIALOG 1: QR CODE SHARE MODAL (Native <dialog> · Shadcn Styled)
   ============================================================ -->
-  <dialog id="qrDialog" class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl p-0 w-full max-w-xs backdrop:bg-black/75 shadow-2xl mx-auto my-auto">
-    <div class="flex items-center justify-between p-4 border-b border-slate-800">
-      <h3 class="text-xs font-bold flex items-center gap-2 text-slate-200">
-        <span>📲</span>
+  <dialog id="qrDialog" closedby="any" aria-labelledby="qrDialogTitle" class="bg-card border border-border text-card-foreground rounded-2xl p-0 w-full max-w-xs backdrop:bg-black/70 shadow-2xl mx-auto my-auto">
+    <div class="flex items-center justify-between p-4 border-b border-border">
+      <h3 id="qrDialogTitle" class="text-xs font-bold flex items-center gap-2 text-foreground">
+        <svg class="w-4 h-4 text-primary" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="5" height="5" x="3" y="3" rx="1"></rect>
+          <rect width="5" height="5" x="16" y="3" rx="1"></rect>
+          <rect width="5" height="5" x="3" y="16" rx="1"></rect>
+          <path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+        </svg>
         <span>Escanear Sesión en Vivo</span>
       </h3>
-      <button class="text-slate-400 hover:text-white text-base p-1" onclick="document.getElementById('qrDialog').close()">✕</button>
+      <button type="button" aria-label="Cerrar ventana" class="text-muted-foreground hover:text-foreground p-1 rounded-md" onclick="document.getElementById('qrDialog').close()">
+        <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18"></path>
+          <path d="m6 6 12 12"></path>
+        </svg>
+      </button>
     </div>
     <div class="p-5 flex flex-col items-center text-center space-y-3.5">
-      <div id="qrCodeContainer" class="bg-white p-3.5 rounded-2xl shadow-xl flex items-center justify-center">
+      <div id="qrCodeContainer" class="bg-white p-3.5 rounded-2xl shadow-sm border border-border flex items-center justify-center">
         <!-- SVG QR rendered here -->
       </div>
-      <div class="text-[11px] text-slate-400 leading-relaxed">
-        Pídele a tu compañero que abra la cámara de su teléfono para unirse a esta misma tienda.
+      <div class="text-[11px] text-muted-foreground leading-relaxed">
+        Pídele a tu compañero que escanee este QR para colaborar en tiempo real en la misma sucursal.
       </div>
-      <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 break-all select-all">
+      <div class="w-full bg-muted/60 border border-border rounded-xl p-2.5 text-xs font-mono font-bold text-primary break-all select-all">
         <span id="qrSessionCodeText"></span>
       </div>
-      <button id="btnCopyFromQrModal" class="w-full bg-neto-blue hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
-        🔗 Copiar Enlace Directo
+      <button id="btnCopyFromQrModal" type="button" class="w-full inline-flex items-center justify-center gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-xs">
+        <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+        </svg>
+        <span>Copiar Enlace Directo</span>
       </button>
     </div>
   </dialog>
 
   <!-- ============================================================
-       DIALOG 2: SUPABASE & SYNC
+       DIALOG 2: SUPABASE & SYNC (Native <dialog> · Shadcn Styled)
   ============================================================ -->
-  <dialog id="syncDialog" class="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl p-0 w-full max-w-sm backdrop:bg-black/70 shadow-2xl mx-auto my-auto">
-    <div class="flex items-center justify-between p-4 border-b border-slate-800">
-      <h3 class="text-sm font-bold flex items-center gap-2">
-        <span>☁️</span>
+  <dialog id="syncDialog" closedby="any" aria-labelledby="syncDialogTitle" class="bg-card border border-border text-card-foreground rounded-2xl p-0 w-full max-w-sm backdrop:bg-black/70 shadow-2xl mx-auto my-auto">
+    <div class="flex items-center justify-between p-4 border-b border-border">
+      <h3 id="syncDialogTitle" class="text-sm font-bold flex items-center gap-2 text-foreground">
+        <svg class="w-4 h-4 text-primary" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+        </svg>
         <span>Sincronización en la Nube</span>
       </h3>
-      <button class="text-slate-400 hover:text-white text-base p-1" onclick="document.getElementById('syncDialog').close()">✕</button>
+      <button type="button" aria-label="Cerrar ventana" class="text-muted-foreground hover:text-foreground p-1 rounded-md" onclick="document.getElementById('syncDialog').close()">
+        <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18"></path>
+          <path d="m6 6 12 12"></path>
+        </svg>
+      </button>
     </div>
     <div class="p-4 space-y-3 text-xs">
-      <p class="text-slate-400 leading-relaxed">
-        El avance se guarda automáticamente en este celular y en la nube. Comparte este código para sincronizar en tiempo real con otro técnico.
+      <p class="text-muted-foreground leading-relaxed">
+        El avance se guarda automáticamente en este dispositivo y en Supabase. Este código conecta tu checklist directamente con el Bot de Telegram.
       </p>
       <div>
-        <label class="block text-slate-400 font-semibold mb-1">Código de Tienda / Sesión</label>
-        <input id="cfgCode" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange" placeholder="Ej. NETO-1712-APERTURA">
+        <label for="cfgCode" class="block text-muted-foreground font-semibold mb-1">Código de Tienda / Sesión</label>
+        <input id="cfgCode" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring font-mono" placeholder="Ej. NETO-1708-APERTURA">
       </div>
       <div class="grid grid-cols-2 gap-2 pt-1">
-        <button id="btnGenCode" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold py-2 rounded-xl transition active:scale-95">
-          🎲 Generar
+        <button id="btnGenCode" type="button" class="inline-flex items-center justify-center gap-1.5 bg-secondary hover:bg-accent border border-border text-secondary-foreground font-semibold py-2 rounded-lg transition active:scale-95">
+          <span>Generar Código</span>
         </button>
-        <button id="btnCopyLink" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold py-2 rounded-xl transition active:scale-95">
-          🔗 Copiar Enlace
+        <button id="btnCopyLink" type="button" class="inline-flex items-center justify-center gap-1.5 bg-secondary hover:bg-accent border border-border text-secondary-foreground font-semibold py-2 rounded-lg transition active:scale-95">
+          <span>Copiar Enlace</span>
         </button>
       </div>
 
-      <details class="pt-2 text-slate-400">
-        <summary class="cursor-pointer font-semibold text-[11px] text-slate-500 hover:text-slate-300">
+      <details class="pt-2 text-muted-foreground">
+        <summary class="cursor-pointer font-semibold text-[11px] hover:text-foreground">
           Ajustes avanzados de Supabase
         </summary>
         <div class="space-y-2 pt-2">
           <div>
-            <label class="block text-[11px] text-slate-400 mb-0.5">Project URL</label>
-            <input id="cfgUrl" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+            <label for="cfgUrl" class="block text-[11px] text-muted-foreground mb-0.5">Project URL</label>
+            <input id="cfgUrl" class="flex h-8 w-full rounded-lg border border-input bg-background px-2.5 py-1 text-xs text-foreground focus-visible:outline-none">
           </div>
           <div>
-            <label class="block text-[11px] text-slate-400 mb-0.5">Anon Key</label>
-            <input id="cfgKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+            <label for="cfgKey" class="block text-[11px] text-muted-foreground mb-0.5">Anon Key</label>
+            <input id="cfgKey" class="flex h-8 w-full rounded-lg border border-input bg-background px-2.5 py-1 text-xs text-foreground focus-visible:outline-none">
           </div>
         </div>
       </details>
     </div>
-    <div class="flex items-center justify-between p-4 border-t border-slate-800 bg-slate-950/50 rounded-b-2xl">
-      <button id="btnPullCloud" class="text-xs font-semibold text-slate-400 hover:text-white px-3 py-1.5 rounded-lg">
-        ⬇ Cargar de Nube
+    <div class="flex items-center justify-between p-4 border-t border-border bg-muted/40 rounded-b-2xl">
+      <button id="btnPullCloud" type="button" class="text-xs font-semibold text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg">
+        Cargar de Nube
       </button>
-      <button id="btnSaveConfig" class="text-xs font-bold bg-neto-orange hover:bg-orange-500 text-white px-4 py-2 rounded-xl shadow transition active:scale-95">
+      <button id="btnSaveConfig" type="button" class="text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg shadow-xs transition active:scale-95">
         Guardar y Salir
       </button>
     </div>
@@ -649,6 +990,7 @@
     { id: "C02", name: "Caja 2 (WS_CAJA02)" }
   ];
 
+  // State keys preserved for 100% compatibility with Supabase & Telegram Bot
   const PERIPHERALS = [
     "🔌 No-break",
     "💵 Gaveta de dinero",
@@ -660,13 +1002,49 @@
     "🖲️ Escáner"
   ];
 
+  // Clean SVG icons and display titles for UI rendering (no emoji clutter in UI)
+  const PERIPH_UI_META = {
+    "🔌 No-break": {
+      label: "No-Break (UPS)",
+      svg: '<svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>'
+    },
+    "💵 Gaveta de dinero": {
+      label: "Gaveta de dinero",
+      svg: '<svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>'
+    },
+    "💳 Pinpad PAX": {
+      label: "Pinpad PAX",
+      svg: '<svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>'
+    },
+    "🖨️ Impresora térmica": {
+      label: "Impresora térmica",
+      svg: '<svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>'
+    },
+    "⌨️ Teclado y mouse": {
+      label: "Teclado y mouse",
+      svg: '<svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" ry="2"></rect><path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h.001M12 12h.001M16 12h.001M7 16h10"></path></svg>'
+    },
+    "👆 Lector de huella": {
+      label: "Lector de huella",
+      svg: '<svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"></path><path d="M5 19.5C5.5 18 6 15 6 12c0-.7.12-1.37.34-2"></path><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"></path><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"></path><path d="M8.65 22c.21-.66.45-1.32.57-2"></path><path d="M14 13.12c0 2.38 0 6.38-1 8.88"></path><path d="M2 16h.01"></path><path d="M21.8 16c.2-2 .131-5.354 0-6"></path><path d="M9 6.8a6 6 0 0 1 9 5.2c0 .47 0 1.17-.02 2"></path></svg>'
+    },
+    "🖥️ Monitor": {
+      label: "Monitor",
+      svg: '<svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>'
+    },
+    "🖲️ Escáner": {
+      label: "Escáner de códigos",
+      svg: '<svg class="w-4 h-4 text-primary shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg>'
+    }
+  };
+
   const PERIPH_STATES = ["Ok", "NA", "Falla", "Sin"];
   const STATE_LABELS = { Ok: "Ok", NA: "N/A", Falla: "Falla", Sin: "Sin Eq." };
   const STATE_CLASSES = {
-    Ok: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/30",
-    NA: "bg-slate-700/40 text-slate-400 border-slate-600/40 hover:bg-slate-700/60",
-    Falla: "bg-rose-500/20 text-rose-400 border-rose-500/40 hover:bg-rose-500/30",
-    Sin: "bg-amber-500/20 text-amber-400 border-amber-500/40 hover:bg-amber-500/30"
+    Ok: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25",
+    NA: "bg-secondary text-muted-foreground border-border hover:bg-accent",
+    Falla: "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/25",
+    Sin: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/25"
   };
 
   const DEFAULT_CORR = [
@@ -697,6 +1075,7 @@
 
   /* --- 2. GLOBAL STATE & PERSISTENCE --- */
   const STORAGE_KEY = "neto_apertura_data_v4";
+  const STORES_CACHE_KEY = "neto_apertura_stores_cache_v1";
   const DEFAULT_URL = "https://dldttdqpcpdtribtgzsa.supabase.co";
   const DEFAULT_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZHR0ZHFwY3BkdHJpYnRnenNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4Njg3OTYsImV4cCI6MjA4OTQ0NDc5Nn0.ItMe0uFz0f4EOmyHS8DhN8eYoWfpaU-BbNsCPndDK2Y";
 
@@ -748,6 +1127,7 @@
   }
 
   let STATE = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || createFreshState();
+  let CATALOG_STORES = JSON.parse(localStorage.getItem(STORES_CACHE_KEY) || "[]");
 
   // Active UI filters & navigation
   let currentTab = "checklist";
@@ -757,17 +1137,33 @@
   let periphMode = "station"; // 'station' | 'matrix'
   let currentPeriphStation = "GT";
 
-  /* --- 3. HAPTIC FEEDBACK --- */
+  /* --- 3. THEME MANAGEMENT (SYNCED WITH RUTAS SURESTE) --- */
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.contains("dark");
+    const next = isDark ? "light" : "dark";
+    if (next === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    document.documentElement.style.colorScheme = next;
+    localStorage.setItem("ruteo.theme", next);
+    const meta = document.getElementById("metaThemeColor");
+    if (meta) meta.setAttribute("content", next === "dark" ? "#0f172a" : "#ffffff");
+    triggerHaptic(10);
+  }
+
+  /* --- 4. HAPTIC FEEDBACK & TOAST --- */
   function triggerHaptic(duration = 12) {
     if ("vibrate" in navigator) {
       try { navigator.vibrate(duration); } catch (e) {}
     }
   }
 
-  /* --- 4. TOAST NOTIFICATIONS --- */
   let toastTimer = null;
   function showToast(msg) {
     const t = document.getElementById("toast");
+    if (!t) return;
     t.textContent = msg;
     t.classList.remove("opacity-0", "translate-y-3");
     t.classList.add("opacity-100", "translate-y-0");
@@ -778,7 +1174,7 @@
     }, 2200);
   }
 
-  /* --- 5. SUPABASE CLOUD SYNC & NETWORK AWARENESS --- */
+  /* --- 5. SUPABASE CLOUD SYNC & RUTAS SURESTE CATALOG --- */
   let syncDebounceTimer = null;
   function setSyncUI(status, label) {
     const dot = document.getElementById("syncDot");
@@ -792,7 +1188,7 @@
     } else if (status === "offline") {
       dot.className = "w-2 h-2 rounded-full bg-amber-500";
     } else {
-      dot.className = "w-2 h-2 rounded-full bg-slate-500";
+      dot.className = "w-2 h-2 rounded-full bg-muted-foreground";
     }
     txt.textContent = label;
   }
@@ -809,6 +1205,43 @@
     });
     if (!r.ok) throw new Error(await r.text());
     return r.json();
+  }
+
+  async function loadRutasSuresteCatalog() {
+    updateCatalogBadge();
+    if (!navigator.onLine || !CFG.url || !CFG.key) return;
+    try {
+      const url = CFG.url.replace(/\/$/, "") + "/rest/v1/tiendas?select=eco,nombre,region,zona,ingeniero,estado&order=nombre.asc";
+      const r = await fetch(url, {
+        headers: {
+          "apikey": CFG.key,
+          "Authorization": "Bearer " + CFG.key,
+          "Accept-Profile": "rutas_sureste"
+        }
+      });
+      if (r.ok) {
+        const data = await r.json();
+        if (Array.isArray(data) && data.length > 0) {
+          CATALOG_STORES = data;
+          localStorage.setItem(STORES_CACHE_KEY, JSON.stringify(data));
+          updateCatalogBadge();
+        }
+      }
+    } catch (e) {
+      console.warn("Catálogo offline:", e);
+    }
+  }
+
+  function updateCatalogBadge() {
+    const badge = document.getElementById("catalogStoreCountBadge");
+    if (badge && CATALOG_STORES.length > 0) {
+      badge.textContent = `${CATALOG_STORES.length} Tiendas · Rutas Sureste`;
+    }
+    const dl = document.getElementById("engineersDatalist");
+    if (dl && CATALOG_STORES.length > 0) {
+      const engineers = [...new Set(CATALOG_STORES.map(s => s.ingeniero).filter(Boolean))].sort();
+      dl.innerHTML = engineers.map(eng => `<option value="${eng}"></option>`).join("");
+    }
   }
 
   async function pushToCloud() {
@@ -847,12 +1280,12 @@
         if (!silent) showToast("✓ Avance cargado desde la nube");
       } else {
         setSyncUI("ok", "Nube");
-        if (!silent) showToast("Sesión iniciada");
+        if (!silent) showToast("Sesión en la nube activa");
         pushToCloud();
       }
     } catch (err) {
       setSyncUI("", "Local");
-      if (!silent) showToast("⚠️ Sin conexión: modo local");
+      if (!silent) showToast("Modo local activo");
     }
   }
 
@@ -863,16 +1296,15 @@
     syncDebounceTimer = setTimeout(pushToCloud, 1800);
   }
 
-  // Network Status Listeners
   window.addEventListener("online", () => {
     setSyncUI("ok", "Nube");
-    showToast("📶 Conexión restablecida - sincronizando...");
+    showToast("Conexión restablecida · Sincronizando...");
     pushToCloud();
   });
 
   window.addEventListener("offline", () => {
     setSyncUI("offline", "Offline");
-    showToast("⚠️ Sin conexión a internet (modo offline activo)");
+    showToast("Sin conexión a internet (modo offline activo)");
   });
 
   /* --- 6. RENDER LOGIC: PROGRESS & HEADER & BADGES --- */
@@ -893,18 +1325,20 @@
       storeTitle.textContent = STATE.f.tienda || "Tienda Apertura";
     }
 
-    // Update bottom nav badge
-    const navBadge = document.getElementById("navChecklistBadge");
-    if (navBadge) {
-      if (remaining > 0) {
-        navBadge.textContent = remaining;
-        navBadge.classList.remove("hidden");
-      } else {
-        navBadge.classList.add("hidden");
+    // Update mobile & desktop checklist badges
+    ["navChecklistBadge", "desktopChecklistBadge"].forEach(id => {
+      const badge = document.getElementById(id);
+      if (badge) {
+        if (remaining > 0) {
+          badge.textContent = remaining;
+          badge.classList.remove("hidden");
+        } else {
+          badge.classList.add("hidden");
+        }
       }
-    }
+    });
 
-    // Update station badges in horizontal chips
+    // Update station chips
     PHASES.forEach(p => {
       const pTotal = p.items.length;
       const pDone = p.items.filter(i => STATE.checks[i.id]).length;
@@ -912,10 +1346,10 @@
       if (chip) {
         const titleShort = p.title.split(" · ")[1] || p.title;
         chip.textContent = `${titleShort} (${pDone}/${pTotal})`;
-        if (pDone === pTotal) {
-          chip.classList.add("border-emerald-500/60", "text-emerald-400");
+        if (pDone === pTotal && currentStation !== p.id) {
+          chip.classList.add("border-emerald-500/40", "text-emerald-600", "dark:text-emerald-400");
         } else {
-          chip.classList.remove("border-emerald-500/60", "text-emerald-400");
+          chip.classList.remove("border-emerald-500/40", "text-emerald-600", "dark:text-emerald-400");
         }
       }
     });
@@ -929,7 +1363,6 @@
     let html = "";
     const visiblePhases = currentStation === "all" ? PHASES : PHASES.filter(p => p.id === currentStation);
     const q = searchQuery.trim().toLowerCase();
-
     let matchedItemCount = 0;
 
     visiblePhases.forEach(phase => {
@@ -938,16 +1371,12 @@
       const isDone = done === total;
 
       let visibleItems = phase.items;
-
-      // Filter by search query if any
       if (q) {
-        visibleItems = visibleItems.filter(i => 
-          i.label.toLowerCase().includes(q) || 
+        visibleItems = visibleItems.filter(i =>
+          i.label.toLowerCase().includes(q) ||
           (i.rep && i.rep.toLowerCase().includes(q))
         );
       }
-
-      // Filter by "only pending"
       if (onlyPending) {
         visibleItems = visibleItems.filter(i => !STATE.checks[i.id]);
       }
@@ -957,10 +1386,10 @@
       if (visibleItems.length === 0) {
         if (onlyPending && !q) {
           html += `
-          <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-center">
-            <div class="text-xs font-bold text-slate-300">${phase.title}</div>
-            <div class="text-xs text-emerald-400 mt-1 font-semibold flex items-center justify-center gap-1.5">
-              <span>✓</span><span>¡Todas las ${total} tareas completadas!</span>
+          <div class="rounded-xl border border-border bg-card p-4 text-center shadow-2xs">
+            <div class="text-xs font-bold text-foreground">${phase.title}</div>
+            <div class="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-semibold flex items-center justify-center gap-1.5">
+              <span>✓ Todas las ${total} tareas completadas</span>
             </div>
           </div>`;
         }
@@ -968,19 +1397,23 @@
       }
 
       html += `
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      <div class="rounded-xl border border-border bg-card text-card-foreground overflow-hidden shadow-xs">
         <!-- Phase Header -->
-        <div class="bg-slate-950/60 px-4 py-3 border-b border-slate-800/80 flex items-center justify-between">
-          <h3 class="text-xs font-bold text-slate-200">${phase.title}</h3>
-          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${isDone ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'}">
+        <div class="bg-muted/50 px-4 py-3 border-b border-border flex items-center justify-between gap-2">
+          <h3 class="text-xs font-bold text-foreground">${phase.title}</h3>
+          <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full tabular-nums ${isDone ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-secondary text-muted-foreground border border-border'}">
             ${done}/${total}${isDone ? ' ✓' : ''}
           </span>
         </div>
 
         <div class="p-2 sm:p-3 space-y-1">
           ${phase.note && !q ? `
-            <div class="bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs p-2.5 rounded-xl font-medium mb-2 flex items-start gap-2">
-              <span class="text-sm">⚠️</span>
+            <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs p-2.5 font-medium mb-2 flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5 text-amber-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                <path d="M12 9v4"></path>
+                <path d="M12 17h.01"></path>
+              </svg>
               <span class="leading-relaxed">${phase.note}</span>
             </div>
           ` : ""}
@@ -988,17 +1421,17 @@
           ${visibleItems.map(item => {
             const isChecked = !!STATE.checks[item.id];
             return `
-            <label class="flex items-start gap-3 p-2.5 rounded-xl transition duration-150 active:bg-slate-800/70 cursor-pointer ${isChecked ? 'bg-slate-950/30' : 'bg-slate-900 hover:bg-slate-800/40'}">
+            <label class="flex items-start gap-3 p-2.5 rounded-lg transition duration-150 cursor-pointer ${isChecked ? 'bg-muted/35' : 'hover:bg-accent/60'}">
               <input type="checkbox" data-check-id="${item.id}" ${isChecked ? 'checked' : ''} class="peer sr-only">
-              <div class="w-5 h-5 rounded-md border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 flex items-center justify-center transition shrink-0 mt-0.5">
+              <div class="w-5 h-5 rounded-md border-2 border-input peer-checked:border-emerald-500 peer-checked:bg-emerald-500 flex items-center justify-center transition shrink-0 mt-0.5">
                 <svg class="w-3.5 h-3.5 text-white ${isChecked ? 'block' : 'hidden'}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
-              <div class="text-xs leading-relaxed flex-1 ${isChecked ? 'line-through text-slate-500' : 'text-slate-200 font-medium'}">
+              <div class="text-xs leading-relaxed flex-1 ${isChecked ? 'line-through text-muted-foreground' : 'text-foreground font-medium'}">
                 ${item.label}
-                ${item.isScript ? '<span class="ml-1 text-[10px] px-1.5 py-0.2 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-bold">SCRIPT</span>' : ''}
-                ${item.isSpecial ? '<span class="ml-1 text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold">VALIDACIÓN</span>' : ''}
+                ${item.isScript ? '<span class="ml-1.5 inline-flex items-center text-[10px] px-1.5 py-0.2 rounded-md bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30 font-bold">SCRIPT</span>' : ''}
+                ${item.isSpecial ? '<span class="ml-1.5 inline-flex items-center text-[10px] px-1.5 py-0.2 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-bold">VALIDACIÓN</span>' : ''}
               </div>
             </label>`;
           }).join("")}
@@ -1008,9 +1441,12 @@
 
     if (q && matchedItemCount === 0) {
       html = `
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-400">
-        <div class="text-2xl mb-2">🔍</div>
-        No se encontraron tareas que coincidan con "<b>${q}</b>".
+      <div class="rounded-xl border border-border bg-card p-8 text-center text-xs text-muted-foreground space-y-2 shadow-2xs">
+        <svg class="w-8 h-8 mx-auto text-muted-foreground/60" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+        <div>No se encontraron tareas que coincidan con "<b class="text-foreground">${q}</b>".</div>
       </div>`;
     }
 
@@ -1027,13 +1463,13 @@
     if (periphMode === "station") {
       stView.classList.remove("hidden");
       mxView.classList.add("hidden");
-      btnSt.className = "flex-1 py-1.5 rounded-lg font-bold transition duration-150 bg-neto-blue text-white shadow-sm";
-      btnMx.className = "flex-1 py-1.5 rounded-lg font-bold transition duration-150 text-slate-400 hover:text-slate-200";
+      btnSt.className = "inline-flex items-center justify-center gap-2 py-2 rounded-lg font-semibold transition duration-150 bg-primary text-primary-foreground shadow-xs";
+      btnMx.className = "inline-flex items-center justify-center gap-2 py-2 rounded-lg font-semibold transition duration-150 text-muted-foreground hover:text-foreground";
     } else {
       stView.classList.add("hidden");
       mxView.classList.remove("hidden");
-      btnSt.className = "flex-1 py-1.5 rounded-lg font-bold transition duration-150 text-slate-400 hover:text-slate-200";
-      btnMx.className = "flex-1 py-1.5 rounded-lg font-bold transition duration-150 bg-neto-blue text-white shadow-sm";
+      btnSt.className = "inline-flex items-center justify-center gap-2 py-2 rounded-lg font-semibold transition duration-150 text-muted-foreground hover:text-foreground";
+      btnMx.className = "inline-flex items-center justify-center gap-2 py-2 rounded-lg font-semibold transition duration-150 bg-primary text-primary-foreground shadow-xs";
     }
 
     const cardsContainer = document.getElementById("periphCardsContainer");
@@ -1048,13 +1484,19 @@
       PERIPHERALS.forEach(p => {
         const key = currentPeriphStation + "|" + p;
         const val = STATE.periph[key] || "Ok";
+        const meta = PERIPH_UI_META[p] || { label: p, svg: "" };
         cardsHtml += `
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm">
-          <div class="min-w-0">
-            <div class="text-xs font-semibold text-slate-200 truncate">${p}</div>
-            <div class="text-[10px] text-slate-400">${currentPeriphStation}</div>
+        <div class="rounded-xl border border-border bg-card text-card-foreground p-3.5 flex items-center justify-between gap-3 shadow-xs">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="h-8 w-8 rounded-lg bg-secondary/80 border border-border flex items-center justify-center shrink-0">
+              ${meta.svg}
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-semibold text-foreground truncate">${meta.label}</div>
+              <div class="text-[10px] text-muted-foreground font-medium">${currentPeriphStation}</div>
+            </div>
           </div>
-          <button class="periph-toggle-btn shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl border transition duration-150 active:scale-95 shadow-sm ${STATE_CLASSES[val]}" data-pkey="${key}">
+          <button type="button" class="periph-toggle-btn shrink-0 text-xs font-bold px-3.5 py-1.5 rounded-lg border transition duration-150 active:scale-95 shadow-2xs ${STATE_CLASSES[val]}" data-pkey="${key}">
             ${STATE_LABELS[val]}
           </button>
         </div>`;
@@ -1066,15 +1508,21 @@
     if (tableBody) {
       let tableHtml = "";
       PERIPHERALS.forEach(p => {
+        const meta = PERIPH_UI_META[p] || { label: p, svg: "" };
         tableHtml += `
-        <tr class="hover:bg-slate-800/30 transition">
-          <td class="p-3 text-slate-200 font-semibold">${p}</td>
+        <tr class="hover:bg-muted/40 transition">
+          <td class="p-3 text-foreground font-semibold">
+            <div class="flex items-center gap-2">
+              ${meta.svg}
+              <span>${meta.label}</span>
+            </div>
+          </td>
           ${STATIONS.map(s => {
             const key = s.id + "|" + p;
             const val = STATE.periph[key] || "Ok";
             return `
             <td class="p-2 text-center">
-              <button class="periph-toggle-btn text-xs font-bold px-2.5 py-1 rounded-lg border transition active:scale-95 ${STATE_CLASSES[val]}" data-pkey="${key}">
+              <button type="button" class="periph-toggle-btn text-xs font-bold px-2.5 py-1 rounded-lg border transition active:scale-95 ${STATE_CLASSES[val]}" data-pkey="${key}">
                 ${STATE_LABELS[val]}
               </button>
             </td>`;
@@ -1087,14 +1535,14 @@
     const rackBadge = document.getElementById("rackStatusBadge");
     if (rackBadge) {
       const isOk = STATE.f.rack === "Ok";
-      rackBadge.textContent = isOk ? "Ok ✓" : "Falla ❌";
-      rackBadge.className = isOk ? "text-xs font-black text-emerald-400" : "text-xs font-black text-rose-400";
+      rackBadge.textContent = isOk ? "Ok ✓" : "Falla ✕";
+      rackBadge.className = isOk ? "text-xs font-black text-emerald-600 dark:text-emerald-400" : "text-xs font-black text-rose-600 dark:text-rose-400";
     }
 
     const vpnBadge = document.getElementById("vpnStatusBadge");
     if (vpnBadge) {
       vpnBadge.textContent = STATE.vpn ? "Activo (Ok) ✓" : "N/A";
-      vpnBadge.className = STATE.vpn ? "text-xs font-black text-emerald-400" : "text-xs font-black text-slate-400";
+      vpnBadge.className = STATE.vpn ? "text-xs font-black text-emerald-600 dark:text-emerald-400" : "text-xs font-black text-muted-foreground";
     }
   }
 
@@ -1114,40 +1562,61 @@
     if (!listSection) return;
 
     const sections = [
-      { key: "corr", title: "✅ Entregables y Correcciones", icon: "✅", list: STATE.corr },
-      { key: "pend", title: "❌ Pendientes de Visita", icon: "❌", list: STATE.pend },
-      { key: "hall", title: "⚠️ Hallazgos en Tienda", icon: "⚠️", list: STATE.hall }
+      {
+        key: "corr",
+        title: "Entregables y Correcciones",
+        badgeClass: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+        svg: '<svg class="w-4 h-4 text-emerald-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+        list: STATE.corr
+      },
+      {
+        key: "pend",
+        title: "Pendientes de Visita",
+        badgeClass: "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30",
+        svg: '<svg class="w-4 h-4 text-rose-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>',
+        list: STATE.pend
+      },
+      {
+        key: "hall",
+        title: "Hallazgos en Tienda (Obra / Terceros)",
+        badgeClass: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",
+        svg: '<svg class="w-4 h-4 text-amber-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>',
+        list: STATE.hall
+      }
     ];
 
     let html = "";
     sections.forEach(sec => {
       const activeCount = sec.list.filter(x => x.on).length;
       html += `
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-2.5">
-        <div class="flex items-center justify-between">
-          <h4 class="text-xs font-bold text-slate-200">${sec.title}</h4>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
+      <div class="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-xs space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <h4 class="text-xs font-bold text-foreground flex items-center gap-2">
+            ${sec.svg}
+            <span>${sec.title}</span>
+          </h4>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${sec.badgeClass}">
             ${activeCount} activos
           </span>
         </div>
 
         <div class="space-y-1">
           ${sec.list.map((item, idx) => `
-            <label class="flex items-start gap-2.5 p-2 rounded-xl transition hover:bg-slate-800/40 cursor-pointer">
+            <label class="flex items-start gap-2.5 p-2 rounded-lg transition hover:bg-accent/60 cursor-pointer">
               <input type="checkbox" data-list-item="${sec.key}|${idx}" ${item.on ? "checked" : ""} class="peer sr-only">
-              <div class="w-4 h-4 rounded border-2 border-slate-600 peer-checked:border-neto-orange peer-checked:bg-neto-orange flex items-center justify-center transition shrink-0 mt-0.5">
-                <svg class="w-3 h-3 text-white ${item.on ? 'block' : 'hidden'}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+              <div class="w-4 h-4 rounded border-2 border-input peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition shrink-0 mt-0.5">
+                <svg class="w-3 h-3 text-primary-foreground ${item.on ? 'block' : 'hidden'}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
-              <span class="text-xs leading-relaxed ${item.on ? "text-slate-100 font-semibold" : "text-slate-400"}">${item.t}</span>
+              <span class="text-xs leading-relaxed ${item.on ? "text-foreground font-semibold" : "text-muted-foreground"}">${item.t}</span>
             </label>
           `).join("")}
         </div>
 
         <div class="flex items-center gap-2 pt-1">
-          <input type="text" data-add-input="${sec.key}" placeholder="Agregar otro concepto..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neto-orange">
-          <button data-add-btn="${sec.key}" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs transition active:scale-95 shrink-0">
+          <input type="text" data-add-input="${sec.key}" placeholder="Agregar otro concepto..." class="flex-1 h-9 rounded-lg border border-input bg-background px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <button type="button" data-add-btn="${sec.key}" class="h-9 bg-secondary hover:bg-accent border border-border text-secondary-foreground font-semibold px-3 rounded-lg text-xs transition active:scale-95 shrink-0">
             + Agregar
           </button>
         </div>
@@ -1157,13 +1626,7 @@
     listSection.innerHTML = html;
   }
 
-  /* --- 10. GENERATE WHATSAPP REPORT --- */
-  function formatDate(d) {
-    if (!d) return "";
-    const parts = d.split("-");
-    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
-  }
-
+  /* --- 10. GENERATE WHATSAPP / SLACK REPORT --- */
   function generateReportText() {
     const f = STATE.f;
     const lines = [];
@@ -1349,19 +1812,34 @@
     document.getElementById("qrDialog").showModal();
   }
 
-  /* --- 12. SWITCH TABS NAVIGATION --- */
+  /* --- 12. SWITCH TABS NAVIGATION (SYNCED MOBILE + DESKTOP) --- */
   function switchTab(tabId) {
     currentTab = tabId;
     triggerHaptic(8);
 
     document.querySelectorAll(".nav-tab").forEach(tab => {
       const active = tab.dataset.tab === tabId;
-      if (active) {
-        tab.classList.add("text-neto-orange", "bg-slate-900/60");
-        tab.classList.remove("text-slate-400");
+      const indicator = tab.querySelector(".nav-indicator");
+      if (indicator) {
+        // Mobile BottomNav item
+        if (active) {
+          tab.classList.add("text-primary");
+          tab.classList.remove("text-muted-foreground");
+          indicator.classList.remove("hidden");
+        } else {
+          tab.classList.remove("text-primary");
+          tab.classList.add("text-muted-foreground");
+          indicator.classList.add("hidden");
+        }
       } else {
-        tab.classList.remove("text-neto-orange", "bg-slate-900/60");
-        tab.classList.add("text-slate-400");
+        // Desktop Segmented TabsList item
+        if (active) {
+          tab.classList.add("bg-card", "text-foreground", "shadow-xs");
+          tab.classList.remove("text-muted-foreground", "hover:text-foreground");
+        } else {
+          tab.classList.remove("bg-card", "text-foreground", "shadow-xs");
+          tab.classList.add("text-muted-foreground", "hover:text-foreground");
+        }
       }
     });
 
@@ -1396,11 +1874,102 @@
   /* --- 14. GLOBAL EVENT LISTENERS --- */
   document.addEventListener("DOMContentLoaded", () => {
     renderAppFull();
+    switchTab("checklist");
+    loadRutasSuresteCatalog();
 
-    // Bottom Navigation Bar
+    // Theme Toggle
+    const btnToggleTheme = document.getElementById("btnToggleTheme");
+    if (btnToggleTheme) {
+      btnToggleTheme.addEventListener("click", toggleTheme);
+    }
+
+    // Native <dialog> light-dismiss fallback (click outside dialog bounds)
+    ["qrDialog", "syncDialog"].forEach(dlgId => {
+      const dlg = document.getElementById(dlgId);
+      if (dlg) {
+        dlg.addEventListener("click", (e) => {
+          const rect = dlg.getBoundingClientRect();
+          const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+          if (!inside) dlg.close();
+        });
+      }
+    });
+
+    // Navigation Tabs (Mobile + Desktop)
     document.querySelectorAll(".nav-tab").forEach(tab => {
       tab.addEventListener("click", () => switchTab(tab.dataset.tab));
     });
+
+    // Store Catalog Autocomplete (Rutas Sureste Supabase)
+    const storeSearchInput = document.getElementById("storeCatalogSearch");
+    const storeResultsBox = document.getElementById("storeCatalogResults");
+    if (storeSearchInput && storeResultsBox) {
+      storeSearchInput.addEventListener("input", (e) => {
+        const q = e.target.value.trim().toLowerCase();
+        if (!q || CATALOG_STORES.length === 0) {
+          storeResultsBox.classList.add("hidden");
+          return;
+        }
+        const matches = CATALOG_STORES.filter(s =>
+          (s.eco && String(s.eco).toLowerCase().includes(q)) ||
+          (s.nombre && s.nombre.toLowerCase().includes(q)) ||
+          (s.zona && s.zona.toLowerCase().includes(q))
+        ).slice(0, 8);
+
+        if (matches.length === 0) {
+          storeResultsBox.innerHTML = `<div class="p-3 text-xs text-muted-foreground">Sin coincidencias en catálogo. Puedes escribir el nombre manualmente abajo.</div>`;
+          storeResultsBox.classList.remove("hidden");
+          return;
+        }
+
+        storeResultsBox.innerHTML = matches.map((s, idx) => {
+          const ecoBadge = s.eco ? `<span class="inline-flex items-center rounded bg-primary/15 text-primary px-1.5 py-0.5 text-[10px] font-mono font-bold">ECO ${s.eco}</span>` : `<span class="inline-flex items-center rounded bg-secondary text-muted-foreground px-1.5 py-0.5 text-[10px] font-mono">S/E</span>`;
+          return `
+          <button type="button" data-catalog-idx="${idx}" data-eco="${s.eco || ''}" data-nombre="${s.nombre || ''}" data-zona="${s.zona || ''}" data-region="${s.region || ''}" data-ing="${s.ingeniero || ''}" class="w-full text-left p-2.5 hover:bg-accent transition flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                ${ecoBadge}
+                <span class="text-xs font-bold text-foreground truncate">${s.nombre}</span>
+              </div>
+              <div class="text-[11px] text-muted-foreground truncate mt-0.5">
+                ${s.zona || 'Sin zona'} · ${s.region || 'Sureste'}${s.ingeniero ? ' · Ing. ' + s.ingeniero : ''}
+              </div>
+            </div>
+            <span class="text-[10px] font-semibold text-primary shrink-0">Elegir →</span>
+          </button>`;
+        }).join("");
+        storeResultsBox.classList.remove("hidden");
+      });
+
+      storeResultsBox.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-catalog-idx]");
+        if (!btn) return;
+        triggerHaptic(12);
+        const eco = btn.dataset.eco;
+        const nombre = btn.dataset.nombre;
+        const zona = btn.dataset.zona;
+        const region = btn.dataset.region;
+        const ing = btn.dataset.ing;
+
+        STATE.f.tienda = eco ? `${eco} ${nombre}` : nombre;
+        if (zona) STATE.f.sian = zona;
+        if (region) STATE.f.region = region;
+        if (ing && !STATE.f.ing) STATE.f.ing = ing;
+
+        storeSearchInput.value = "";
+        storeResultsBox.classList.add("hidden");
+        renderStoreForm();
+        scheduleSave();
+        updateReportOutput();
+        showToast(`✓ Sucursal cargada: ${STATE.f.tienda}`);
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!storeSearchInput.contains(e.target) && !storeResultsBox.contains(e.target)) {
+          storeResultsBox.classList.add("hidden");
+        }
+      });
+    }
 
     // Real-Time Search in Checklist
     const searchInput = document.getElementById("checklistSearchInput");
@@ -1429,16 +1998,26 @@
     }
 
     // Station Selector Chips (Checklist)
+    function updateStationChipsUI() {
+      document.querySelectorAll(".station-chip").forEach(b => {
+        const isAct = b.dataset.station === currentStation;
+        if (isAct) {
+          b.classList.add("active", "bg-primary", "text-primary-foreground", "border-primary", "shadow-2xs");
+          b.classList.remove("bg-secondary/60", "text-muted-foreground", "border-border");
+        } else {
+          b.classList.remove("active", "bg-primary", "text-primary-foreground", "border-primary", "shadow-2xs");
+          b.classList.add("bg-secondary/60", "text-muted-foreground", "border-border");
+        }
+      });
+    }
+    updateStationChipsUI();
+
     document.querySelectorAll(".station-chip").forEach(btn => {
       btn.addEventListener("click", () => {
         triggerHaptic(10);
-        document.querySelectorAll(".station-chip").forEach(b => {
-          b.classList.remove("active", "bg-neto-blue", "text-white", "border-neto-blue");
-          b.classList.add("bg-slate-900", "text-slate-400", "border-slate-800");
-        });
-        btn.classList.add("active", "bg-neto-blue", "text-white", "border-neto-blue");
-        btn.classList.remove("bg-slate-900", "text-slate-400", "border-slate-800");
         currentStation = btn.dataset.station;
+        updateStationChipsUI();
+        updateProgressHeader();
         renderChecklist();
       });
     });
@@ -1449,22 +2028,23 @@
       toggleFilterBtn.addEventListener("click", () => {
         triggerHaptic(12);
         onlyPending = !onlyPending;
-        const icon = document.getElementById("filterBtnIcon");
         const txt = document.getElementById("filterBtnText");
         const badge = document.getElementById("filterStatusBadge");
 
         if (onlyPending) {
-          icon.textContent = "📋";
           txt.textContent = "Ver todas";
-          badge.textContent = "Solo pendientes";
-          badge.className = "text-amber-400 font-bold";
-          toggleFilterBtn.className = "flex items-center gap-1.5 bg-amber-500/20 text-amber-400 font-bold px-2.5 py-1 rounded-lg border border-amber-500/30 transition";
+          if (badge) {
+            badge.textContent = "Solo pendientes";
+            badge.className = "text-amber-600 dark:text-amber-400 font-bold";
+          }
+          toggleFilterBtn.className = "inline-flex items-center justify-center gap-1.5 h-9 rounded-lg border border-amber-500/40 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold px-3 text-xs transition active:scale-95 shrink-0";
         } else {
-          icon.textContent = "⏳";
           txt.textContent = "Solo pendientes";
-          badge.textContent = "Todas";
-          badge.className = "text-slate-200 font-semibold";
-          toggleFilterBtn.className = "flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-2.5 py-1 rounded-lg border border-slate-700 transition";
+          if (badge) {
+            badge.textContent = "Todas";
+            badge.className = "text-foreground font-semibold";
+          }
+          toggleFilterBtn.className = "inline-flex items-center justify-center gap-1.5 h-9 rounded-lg border border-border bg-secondary/70 hover:bg-secondary text-secondary-foreground font-semibold px-3 text-xs transition active:scale-95 shrink-0";
         }
         renderChecklist();
       });
@@ -1494,16 +2074,25 @@
     };
 
     // Peripheral Station Tabs (GT, C01, C02)
+    function updatePeriphStationTabsUI() {
+      document.querySelectorAll(".periph-st-tab").forEach(t => {
+        const isAct = t.dataset.pst === currentPeriphStation;
+        if (isAct) {
+          t.classList.add("active", "bg-primary", "text-primary-foreground", "border-primary");
+          t.classList.remove("bg-card", "text-muted-foreground", "border-border");
+        } else {
+          t.classList.remove("active", "bg-primary", "text-primary-foreground", "border-primary");
+          t.classList.add("bg-card", "text-muted-foreground", "border-border");
+        }
+      });
+    }
+    updatePeriphStationTabsUI();
+
     document.querySelectorAll(".periph-st-tab").forEach(tab => {
       tab.addEventListener("click", () => {
         triggerHaptic(10);
-        document.querySelectorAll(".periph-st-tab").forEach(t => {
-          t.classList.remove("active", "bg-neto-blue", "text-white", "border-neto-blue");
-          t.classList.add("bg-slate-900", "text-slate-400", "border-slate-800");
-        });
-        tab.classList.add("active", "bg-neto-blue", "text-white", "border-neto-blue");
-        tab.classList.remove("bg-slate-900", "text-slate-400", "border-slate-800");
         currentPeriphStation = tab.dataset.pst;
+        updatePeriphStationTabsUI();
         renderPeripherals();
       });
     });
@@ -1585,16 +2174,25 @@
     });
 
     // Report Format Selector
+    function updateReportFmtButtonsUI() {
+      document.querySelectorAll(".report-fmt-btn").forEach(b => {
+        const isAct = b.dataset.fmt === STATE.fmt;
+        if (isAct) {
+          b.classList.add("active", "bg-primary", "text-primary-foreground", "shadow-xs");
+          b.classList.remove("text-muted-foreground", "hover:text-foreground");
+        } else {
+          b.classList.remove("active", "bg-primary", "text-primary-foreground", "shadow-xs");
+          b.classList.add("text-muted-foreground", "hover:text-foreground");
+        }
+      });
+    }
+    updateReportFmtButtonsUI();
+
     document.querySelectorAll(".report-fmt-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         triggerHaptic(10);
-        document.querySelectorAll(".report-fmt-btn").forEach(b => {
-          b.classList.remove("active", "bg-neto-blue", "text-white");
-          b.classList.add("text-slate-400");
-        });
-        btn.classList.add("active", "bg-neto-blue", "text-white");
-        btn.classList.remove("text-slate-400");
         STATE.fmt = btn.dataset.fmt;
+        updateReportFmtButtonsUI();
         scheduleSave();
         updateReportOutput();
       });
@@ -1606,7 +2204,7 @@
       const text = generateReportText();
       navigator.clipboard.writeText(text).then(() => {
         const btnTxt = document.getElementById("btnCopyReportText");
-        btnTxt.textContent = "✓ ¡Copiado!";
+        btnTxt.textContent = "✓ Copiado";
         showToast("✓ Reporte copiado al portapapeles");
         setTimeout(() => { btnTxt.textContent = "Copiar"; }, 2000);
       }).catch(() => {
@@ -1732,24 +2330,6 @@
       document.getElementById("syncDialog").close();
     };
 
-    // Initialize Station Chip styling
-    const allChip = document.querySelector('[data-station="all"]');
-    if (allChip) {
-      allChip.classList.add("bg-neto-blue", "text-white", "border-neto-blue");
-    }
-
-    // Initialize Periph Station Tab styling
-    const gtTab = document.querySelector('[data-pst="GT"]');
-    if (gtTab) {
-      gtTab.classList.add("bg-neto-blue", "text-white", "border-neto-blue");
-    }
-
-    // Initialize Report Format Tab styling
-    const proBtn = document.querySelector('[data-fmt="pro"]');
-    if (proBtn) {
-      proBtn.classList.add("bg-neto-blue", "text-white");
-    }
-
     // Check URL session parameter
     const initialUrlParams = new URLSearchParams(window.location.search);
     if (initialUrlParams.get("code") || initialUrlParams.get("session")) {
@@ -1779,7 +2359,7 @@
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === "accepted") {
-        showToast("✓ ¡Instalando Neto Apertura!");
+        showToast("✓ Instalando Neto Apertura...");
         btnInstall.classList.add("hidden");
         btnInstall.classList.remove("inline-flex");
       }
@@ -1788,7 +2368,7 @@
   }
 
   window.addEventListener("appinstalled", () => {
-    showToast("🎉 ¡App instalada en tu dispositivo!");
+    showToast("✓ App instalada en tu dispositivo");
     if (btnInstall) {
       btnInstall.classList.add("hidden");
       btnInstall.classList.remove("inline-flex");

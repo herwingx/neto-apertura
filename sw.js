@@ -1,4 +1,4 @@
-const CACHE_NAME = 'neto-apertura-v3';
+const CACHE_NAME = 'neto-apertura-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -6,6 +6,8 @@ const ASSETS = [
   './dist/styles.css',
   './dist/qrcode.js',
   './favicon.ico',
+  './icon.svg',
+  './icons/logo-app.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',

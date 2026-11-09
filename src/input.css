@@ -1,13 +1,109 @@
 @import "tailwindcss";
 @source "../index.html";
 
-@theme {
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: light dark;
+  accent-color: var(--primary);
+
+  /* Light Mode: Slate 100 canvas with crisp white elevated cards (matches Ruteo Chiapas / Rutas Sureste) */
+  --background: hsl(214 32% 95.5%);
+  --foreground: hsl(222.2 47.4% 11.2%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(222.2 47.4% 11.2%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(222.2 47.4% 11.2%);
+  --primary: hsl(221.2 83.2% 53.3%);
+  --primary-foreground: hsl(210 40% 98%);
+  --secondary: hsl(214 32% 90%);
+  --secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --muted: hsl(214 32% 91.5%);
+  --muted-foreground: hsl(215.4 20% 38%);
+  --accent: hsl(214 32% 89%);
+  --accent-foreground: hsl(222.2 47.4% 11.2%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(210 40% 98%);
+  --border: hsl(214.3 28% 82%);
+  --input: hsl(214.3 28% 80%);
+  --ring: hsl(221.2 83.2% 53.3%);
+  --radius: 0.75rem;
+}
+
+.dark {
+  /* Dark Mode: Slate 950 canvas with Slate 900 elevated cards */
+  --background: hsl(222 47% 7.5%);
+  --foreground: hsl(210 40% 98%);
+  --card: hsl(222 42% 11.5%);
+  --card-foreground: hsl(210 40% 98%);
+  --popover: hsl(222 42% 12.5%);
+  --popover-foreground: hsl(210 40% 98%);
+  --primary: hsl(217.2 91.2% 59.8%);
+  --primary-foreground: hsl(222.2 47.4% 11.2%);
+  --secondary: hsl(217 32% 16.5%);
+  --secondary-foreground: hsl(210 40% 96%);
+  --muted: hsl(217 32% 15.5%);
+  --muted-foreground: hsl(215 20% 68%);
+  --accent: hsl(217 32% 19%);
+  --accent-foreground: hsl(210 40% 98%);
+  --destructive: hsl(0 72% 51%);
+  --destructive-foreground: hsl(210 40% 98%);
+  --border: hsl(217 28% 21%);
+  --input: hsl(217 28% 18%);
+  --ring: hsl(224.3 76.3% 58%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Tiendas Neto Official Brand Accents */
   --color-neto-blue: #1b3d88;
   --color-neto-orange: #f26e26;
-  --color-neto-dark: #020617;
-  --color-card: #0f172a;
-  --color-card-sub: #1e293b;
-  --color-card-border: #334155;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* Native <dialog> modal scroll containment & backdrop rules */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 /* Custom safe area utilities for mobile devices */
@@ -26,4 +122,3 @@
 .touch-scroll::-webkit-scrollbar {
   display: none;
 }
-
