@@ -2231,7 +2231,7 @@
     document.getElementById("btnSendWa").onclick = () => {
       triggerHaptic(15);
       const text = generateReportText();
-      const encoded = encodeURIComponent(text).replace(/%23/g, "%2523");
+      const encoded = encodeURIComponent(text);
       const url = "https://api.whatsapp.com/send?text=" + encoded;
       window.open(url, "_blank");
     };
