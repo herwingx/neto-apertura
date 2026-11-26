@@ -41,7 +41,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="dist/styles.css">
+  <link rel="stylesheet" href="dist/styles.css?v=9">
   <script src="dist/qrcode.js"></script>
 
   <style>
@@ -246,7 +246,7 @@
               id="checklistSearchInput"
               type="search"
               placeholder="Buscar tarea (PAX, Hydra, switch...)"
-              class="flex h-11 sm:h-9 w-full rounded-lg border border-input bg-background pl-9 pr-9 py-1.5 text-base sm:text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition"
+              class="flex h-11 sm:h-9 w-full rounded-lg border border-input bg-background pl-10 pr-9 py-1.5 text-base sm:text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition"
             >
             <button
               id="btnClearSearch"
@@ -765,7 +765,7 @@
   <!-- ============================================================
        MOBILE BOTTOM NAVIGATION BAR (Matches Rutas Sureste BottomNav.jsx)
   ============================================================ -->
-  <nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border pb-safe select-none no-print" aria-label="Navegación principal móvil">
+  <nav class="sm:hidden fixed bottom-0 inset-x-0 w-full z-40 bg-card/95 backdrop-blur-md border-t border-border pb-safe select-none no-print" aria-label="Navegación principal móvil">
     <div class="grid grid-cols-4 h-14 max-w-md mx-auto">
       <button type="button" class="nav-tab relative flex flex-col items-center justify-center gap-0.5 transition-colors" data-tab="checklist">
         <span class="nav-indicator absolute top-0 inset-x-3 h-0.5 bg-primary rounded-b-full"></span>
@@ -2561,10 +2561,19 @@
     }
   });
 
-  // Register Service Worker
+  // Register Service Worker & reload seamlessly when a new version activates
   if ("serviceWorker" in navigator) {
+    let swRefreshing = false;
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadController || swRefreshing) return;
+      swRefreshing = true;
+      window.location.reload();
+    });
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(console.warn);
+      navigator.serviceWorker.register("./sw.js").then((reg) => {
+        reg.update().catch(() => {});
+      }).catch(console.warn);
     });
   }
   </script>
