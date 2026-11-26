@@ -158,19 +158,18 @@ begin
       lng = coalesce(v_lng, lng),
       verificada = case when v_lat is not null and v_lng is not null then true else verificada end,
       fecha_verificacion = case when v_lat is not null and v_lng is not null then current_date else fecha_verificacion end,
-      geom = case when v_lat is not null and v_lng is not null then extensions.ST_SetSRID(extensions.ST_MakePoint(v_lng, v_lat), 4326) else geom end,
       updated_at = now()
     where id = v_existing_id
     returning id into v_result_id;
   else
+    -- `geom` es columna GENERATED ALWAYS en rutas_sureste.tiendas (se calcula sola desde lat/lng)
     insert into rutas_sureste.tiendas (
       eco, ceco, nombre, coords, lat, lng, estado, region, region_id, empresa,
-      zona, zona_id, ingeniero, ingeniero_id, verificada, fecha_verificacion, geom
+      zona, zona_id, ingeniero, ingeniero_id, verificada, fecha_verificacion
     ) values (
       v_eco, v_ceco, v_nombre, v_coords, v_lat, v_lng, v_estado, v_region, v_region_id, 'SURESTE',
       v_zona, v_zona_id, v_ingeniero, v_ingeniero_id, (v_lat is not null and v_lng is not null),
-      case when v_lat is not null and v_lng is not null then current_date else null end,
-      case when v_lat is not null and v_lng is not null then extensions.ST_SetSRID(extensions.ST_MakePoint(v_lng, v_lat), 4326) else null end
+      case when v_lat is not null and v_lng is not null then current_date else null end
     )
     returning id into v_result_id;
   end if;
