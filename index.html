@@ -41,7 +41,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="dist/styles.css?v=11">
+  <link rel="stylesheet" href="dist/styles.css?v=12">
   <script src="dist/qrcode.js"></script>
 
   <style>
@@ -1286,8 +1286,8 @@
     txt.textContent = label;
   }
 
-  /* --- 4.5 SUPABASE AUTH (@soyneto.com, shared security model with Rutas Sureste) --- */
-  const AUTH_STORAGE_KEY = "neto_auth_session_v1";
+  /* --- 4.5 SUPABASE AUTH (@soyneto.com, SSO compartido con Rutas Sureste) --- */
+  const AUTH_STORAGE_KEY = "sb-dldttdqpcpdtribtgzsa-auth-token";
   let AUTH_SESSION = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null");
 
   function saveAuthSession(session) {
@@ -1451,7 +1451,14 @@
       }
       return null;
     }
-    const eco = String(f.eco || "").trim();
+    let eco = String(f.eco || "").trim();
+    if (!eco) {
+      const mEco = nombreRaw.match(/\b(\d{3,5})\b/);
+      if (mEco) {
+        eco = mEco[1];
+        STATE.f.eco = eco;
+      }
+    }
     const ceco = String(f.ceco || "").trim();
     const { lat, lng } = parseCoordsString(f.coords);
     // Limpiar el ECO si el usuario lo escribió dentro del nombre para guardar nombre limpio en DB
@@ -1503,6 +1510,35 @@
     if (dl && CATALOG_STORES.length > 0) {
       const engineers = [...new Set(CATALOG_STORES.map(s => s.ingeniero).filter(Boolean))].sort();
       dl.innerHTML = engineers.map(eng => `<option value="${eng}"></option>`).join("");
+    }
+    updateStorePublishedStatus();
+  }
+
+  function updateStorePublishedStatus() {
+    const statusBadge = document.getElementById("storeDbStatusBadge");
+    if (!statusBadge) return;
+    const f = STATE.f || {};
+    const nombreRaw = String(f.tienda || "").trim().toUpperCase();
+    const ecoRaw = String(f.eco || "").trim();
+    if (!nombreRaw) {
+      statusBadge.textContent = "Sincronización con Catálogo Maestro:";
+      statusBadge.className = "font-semibold text-foreground";
+      return;
+    }
+    const matched = CATALOG_STORES.find(s =>
+      (ecoRaw && ecoRaw !== "0" && String(s.eco || "").trim() === ecoRaw) ||
+      (s.nombre && nombreRaw.includes(String(s.nombre).trim().toUpperCase()))
+    );
+    if (matched) {
+      statusBadge.textContent = matched.lat && matched.lng
+        ? "✓ Ya visible en Mapa Rutas Sureste y Bot:"
+        : "⚠ En catálogo sin GPS (captura GPS y guarda):";
+      statusBadge.className = matched.lat && matched.lng
+        ? "font-semibold text-emerald-600 dark:text-emerald-400"
+        : "font-semibold text-amber-600 dark:text-amber-400";
+    } else {
+      statusBadge.textContent = "⚠ Pendiente de publicar en Mapa Rutas Sureste y Bot:";
+      statusBadge.className = "font-semibold text-amber-600 dark:text-amber-400";
     }
   }
 
