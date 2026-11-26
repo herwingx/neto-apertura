@@ -1,4 +1,4 @@
-const CACHE_NAME = 'neto-apertura-v6';
+const CACHE_NAME = 'neto-apertura-v7';
 const ASSETS = [
   './',
   './index.html',
