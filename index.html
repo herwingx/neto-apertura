@@ -41,7 +41,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="dist/styles.css?v=9">
+  <link rel="stylesheet" href="dist/styles.css?v=10">
   <script src="dist/qrcode.js"></script>
 
   <style>
@@ -878,21 +878,43 @@
         </svg>
       </button>
     </div>
-    <div class="p-4 space-y-3 text-xs">
-      <p class="text-muted-foreground leading-relaxed">
-        El avance se guarda automáticamente en este dispositivo y en Supabase. Este código conecta tu checklist directamente con el Bot de Telegram.
-      </p>
-      <div>
-        <label for="cfgCode" class="block text-muted-foreground font-semibold mb-1">Código de Tienda / Sesión</label>
-        <input id="cfgCode" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring font-mono" placeholder="Ej. NETO-1708-APERTURA">
+    <div class="p-4 space-y-3 text-xs max-h-[70dvh] overflow-y-auto">
+      <!-- Acción rápida: Iniciar nueva apertura sin sobrescribir la anterior -->
+      <button id="btnNewOpeningModal" type="button" class="w-full min-h-11 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl shadow-xs transition active:scale-95">
+        <svg class="w-4 h-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="M12 5v14"></path>
+        </svg>
+        <span>Iniciar Nueva Apertura (Tienda nueva)</span>
+      </button>
+
+      <!-- Lista de aperturas recientes guardadas en Supabase -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Aperturas recientes en la nube</span>
+          <button id="btnRefreshRecent" type="button" class="text-[11px] font-semibold text-primary hover:underline">Actualizar</button>
+        </div>
+        <div id="recentOpeningsList" class="space-y-1.5 max-h-40 overflow-y-auto">
+          <div class="text-[11px] text-muted-foreground py-2 text-center">Cargando aperturas...</div>
+        </div>
       </div>
-      <div class="grid grid-cols-2 gap-2 pt-1">
-        <button id="btnGenCode" type="button" class="inline-flex items-center justify-center gap-1.5 bg-secondary hover:bg-accent border border-border text-secondary-foreground font-semibold py-2 rounded-lg transition active:scale-95">
-          <span>Generar Código</span>
-        </button>
-        <button id="btnCopyLink" type="button" class="inline-flex items-center justify-center gap-1.5 bg-secondary hover:bg-accent border border-border text-secondary-foreground font-semibold py-2 rounded-lg transition active:scale-95">
-          <span>Copiar Enlace</span>
-        </button>
+
+      <div class="border-t border-border pt-3 space-y-2.5">
+        <p class="text-muted-foreground leading-relaxed">
+          Cada apertura tiene su propio código en Supabase. Comparte el código para colaborar o conectar con el Bot de Telegram.
+        </p>
+        <div>
+          <label for="cfgCode" class="block text-muted-foreground font-semibold mb-1">Código de Sesión Actual</label>
+          <input id="cfgCode" class="flex h-10 sm:h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-base sm:text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring font-mono" placeholder="Ej. NETO-1708-APERTURA">
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-0.5">
+          <button id="btnGenCode" type="button" class="inline-flex items-center justify-center gap-1.5 min-h-10 bg-secondary hover:bg-accent border border-border text-secondary-foreground font-semibold py-2 rounded-lg transition active:scale-95">
+            <span>Generar Código</span>
+          </button>
+          <button id="btnCopyLink" type="button" class="inline-flex items-center justify-center gap-1.5 min-h-10 bg-secondary hover:bg-accent border border-border text-secondary-foreground font-semibold py-2 rounded-lg transition active:scale-95">
+            <span>Copiar Enlace</span>
+          </button>
+        </div>
       </div>
 
       <details class="pt-2 text-muted-foreground">
@@ -2462,18 +2484,106 @@
       }
     };
 
-    // Reset App Form
-    document.getElementById("btnResetApp").onclick = () => {
-      if (confirm("¿Deseas iniciar una nueva apertura? Se limpiarán las casillas de este teléfono (se conserva tu nombre de ingeniero).")) {
-        triggerHaptic(25);
-        const ing = STATE.f.ing;
-        STATE = createFreshState();
-        STATE.f.ing = ing;
-        scheduleSave();
-        renderAppFull();
-        showToast("✓ Nueva apertura iniciada");
+    // Start a brand-new opening with a fresh session code (preserves previous opening in Supabase)
+    async function startNewOpening() {
+      if (!confirm("¿Iniciar una nueva apertura? La tienda actual queda respaldada en la nube y se creará un código nuevo en blanco (se conserva tu nombre de ingeniero).")) {
+        return;
       }
-    };
+      triggerHaptic(25);
+      // Respaldar la apertura actual antes de cambiar de código
+      try {
+        if (STATE.f.tienda || Object.values(STATE.checks).some(Boolean)) {
+          await pushToCloud();
+        }
+      } catch (e) {}
+
+      const ing = STATE.f.ing;
+      CFG.code = "NETO-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-APERTURA";
+      localStorage.setItem("neto_cfg", JSON.stringify(CFG));
+      // Limpiar ?code= de la URL para que al recargar no regrese a la tienda anterior
+      if (window.location.search) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+
+      STATE = createFreshState();
+      STATE.f.ing = ing;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+
+      const catSearch = document.getElementById("storeCatalogSearch");
+      if (catSearch) catSearch.value = "";
+      const dbBadge = document.getElementById("storeDbStatusBadge");
+      if (dbBadge) {
+        dbBadge.textContent = "Sincronización con Catálogo Maestro:";
+        dbBadge.className = "font-semibold text-foreground";
+      }
+
+      renderAppFull();
+      const syncDlg = document.getElementById("syncDialog");
+      if (syncDlg && syncDlg.open) syncDlg.close();
+      switchTab("store");
+      showToast("✓ Nueva apertura lista · código nuevo generado");
+    }
+
+    // Load recent openings list from Supabase (neto_list_checklists)
+    async function loadRecentOpenings() {
+      const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const box = document.getElementById("recentOpeningsList");
+      if (!box) return;
+      if (!navigator.onLine) {
+        box.innerHTML = `<div class="text-[11px] text-muted-foreground py-2 text-center">Sin conexión para consultar historial</div>`;
+        return;
+      }
+      box.innerHTML = `<div class="text-[11px] text-muted-foreground py-2 text-center">Cargando aperturas...</div>`;
+      try {
+        const list = await rpcCall("neto_list_checklists", { p_limit: 10 });
+        if (!Array.isArray(list) || list.length === 0) {
+          box.innerHTML = `<div class="text-[11px] text-muted-foreground py-2 text-center">Aún no hay aperturas en la nube</div>`;
+          return;
+        }
+        const totalItems = PHASES.flatMap(p => p.items).length;
+        box.innerHTML = list.map(item => {
+          const d = item.data || {};
+          const f = d.f || {};
+          const checks = d.checks || {};
+          const done = Object.values(checks).filter(Boolean).length;
+          const pct = totalItems ? Math.round((done / totalItems) * 100) : 0;
+          const isCurrent = item.code === CFG.code;
+          const name = f.tienda || item.code;
+          const fecha = f.fecha ? formatDate(f.fecha) : "";
+          return `
+            <button type="button" data-open-code="${esc(item.code)}" class="w-full text-left flex items-center justify-between gap-2 px-3 py-2 rounded-lg border transition active:scale-[0.99] ${isCurrent ? 'border-primary bg-primary/10' : 'border-border bg-background hover:bg-accent'}">
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-bold text-foreground truncate">${esc(name)}</div>
+                <div class="text-[10px] text-muted-foreground font-mono truncate">${esc(item.code)}${fecha ? ' · ' + esc(fecha) : ''}</div>
+              </div>
+              <span class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${isCurrent ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}">
+                ${isCurrent ? 'Activa' : pct + '%'}
+              </span>
+            </button>
+          `;
+        }).join("");
+      } catch (err) {
+        box.innerHTML = `<div class="text-[11px] text-muted-foreground py-2 text-center">No se pudo cargar el historial</div>`;
+      }
+    }
+
+    // Reset App Form
+    document.getElementById("btnResetApp").onclick = startNewOpening;
+    document.getElementById("btnNewOpeningModal").onclick = startNewOpening;
+    document.getElementById("btnRefreshRecent").onclick = () => { triggerHaptic(8); loadRecentOpenings(); };
+
+    document.getElementById("recentOpeningsList").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-open-code]");
+      if (!btn) return;
+      const code = btn.dataset.openCode;
+      if (!code) return;
+      triggerHaptic(12);
+      CFG.code = code;
+      localStorage.setItem("neto_cfg", JSON.stringify(CFG));
+      document.getElementById("cfgCode").value = code;
+      pullFromCloud(false);
+      document.getElementById("syncDialog").close();
+    });
 
     // Sync Modal Controls
     document.getElementById("syncModalBtn").onclick = () => {
@@ -2482,6 +2592,7 @@
       document.getElementById("cfgUrl").value = CFG.url || "";
       document.getElementById("cfgKey").value = CFG.key || "";
       document.getElementById("syncDialog").showModal();
+      loadRecentOpenings();
     };
 
     document.getElementById("btnGenCode").onclick = () => {

@@ -1,9 +1,9 @@
-const CACHE_NAME = 'neto-apertura-v9';
+const CACHE_NAME = 'neto-apertura-v10';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './dist/styles.css?v=9',
+  './dist/styles.css?v=10',
   './dist/qrcode.js',
   './favicon.ico',
   './icon.svg',
