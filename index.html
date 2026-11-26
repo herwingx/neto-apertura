@@ -41,7 +41,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="dist/styles.css?v=10">
+  <link rel="stylesheet" href="dist/styles.css?v=11">
   <script src="dist/qrcode.js"></script>
 
   <style>
@@ -917,21 +917,36 @@
         </div>
       </div>
 
-      <details class="pt-2 text-muted-foreground">
-        <summary class="cursor-pointer font-semibold text-[11px] hover:text-foreground">
-          Ajustes avanzados de Supabase
-        </summary>
-        <div class="space-y-2 pt-2">
-          <div>
-            <label for="cfgUrl" class="block text-[11px] text-muted-foreground mb-0.5">Project URL</label>
-            <input id="cfgUrl" class="flex h-8 w-full rounded-lg border border-input bg-background px-2.5 py-1 text-xs text-foreground focus-visible:outline-none">
-          </div>
-          <div>
-            <label for="cfgKey" class="block text-[11px] text-muted-foreground mb-0.5">Anon Key</label>
-            <input id="cfgKey" class="flex h-8 w-full rounded-lg border border-input bg-background px-2.5 py-1 text-xs text-foreground focus-visible:outline-none">
-          </div>
+      <!-- Cuenta de Ingeniero (Supabase Auth @soyneto.com · Requerida para escribir en Catálogo Maestro) -->
+      <div id="authSectionBox" class="border-t border-border pt-3 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Cuenta de Ingeniero (@soyneto.com)</span>
+          <span id="authStatusPill" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">Sin sesión</span>
         </div>
-      </details>
+
+        <!-- Vista logueada -->
+        <div id="authLoggedInBox" class="hidden rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-2.5 flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">Sesión verificada</div>
+            <div id="authUserEmail" class="text-xs font-mono text-foreground truncate"></div>
+          </div>
+          <button id="btnAuthLogout" type="button" class="shrink-0 min-h-9 px-2.5 rounded-lg border border-border bg-background hover:bg-accent text-xs font-semibold text-foreground">
+            Salir
+          </button>
+        </div>
+
+        <!-- Formulario de inicio de sesión -->
+        <form id="authLoginForm" class="space-y-2">
+          <p class="text-[11px] text-muted-foreground leading-snug">
+            Usa la misma cuenta de <b>Rutas Sureste</b> para registrar tiendas nuevas en el mapa maestro de forma segura.
+          </p>
+          <input id="authEmail" type="email" autocomplete="email" required placeholder="tu.correo@soyneto.com" class="flex h-10 sm:h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-base sm:text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <input id="authPassword" type="password" autocomplete="current-password" required placeholder="Contraseña" class="flex h-10 sm:h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-base sm:text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <button id="btnAuthLogin" type="submit" class="w-full min-h-10 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition active:scale-95">
+            Iniciar Sesión (@soyneto.com)
+          </button>
+        </form>
+      </div>
     </div>
     <div class="flex items-center justify-between p-4 border-t border-border bg-muted/40 rounded-b-2xl">
       <button id="btnPullCloud" type="button" class="text-xs font-semibold text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg">
@@ -1271,12 +1286,98 @@
     txt.textContent = label;
   }
 
+  /* --- 4.5 SUPABASE AUTH (@soyneto.com, shared security model with Rutas Sureste) --- */
+  const AUTH_STORAGE_KEY = "neto_auth_session_v1";
+  let AUTH_SESSION = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null");
+
+  function saveAuthSession(session) {
+    AUTH_SESSION = session;
+    if (session) {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+    } else {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+    updateAuthUI();
+  }
+
+  function updateAuthUI() {
+    const pill = document.getElementById("authStatusPill");
+    const loggedInBox = document.getElementById("authLoggedInBox");
+    const loginForm = document.getElementById("authLoginForm");
+    const emailEl = document.getElementById("authUserEmail");
+    const isAuth = !!(AUTH_SESSION && AUTH_SESSION.access_token && AUTH_SESSION.user);
+
+    if (pill) {
+      pill.textContent = isAuth ? "Verificado" : "Sin sesión";
+      pill.className = isAuth
+        ? "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+        : "text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400";
+    }
+    if (loggedInBox) {
+      loggedInBox.classList.toggle("hidden", !isAuth);
+      loggedInBox.classList.toggle("flex", isAuth);
+    }
+    if (loginForm) loginForm.classList.toggle("hidden", isAuth);
+    if (emailEl && isAuth) emailEl.textContent = AUTH_SESSION.user.email || "";
+  }
+
+  async function ensureValidAccessToken() {
+    if (!AUTH_SESSION || !AUTH_SESSION.access_token) return null;
+    const nowSec = Math.floor(Date.now() / 1000);
+    // Refresh if token expires in less than 90 seconds
+    if (AUTH_SESSION.expires_at && AUTH_SESSION.expires_at - nowSec < 90 && AUTH_SESSION.refresh_token) {
+      try {
+        const r = await fetch(DEFAULT_URL + "/auth/v1/token?grant_type=refresh_token", {
+          method: "POST",
+          headers: { "apikey": DEFAULT_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: AUTH_SESSION.refresh_token })
+        });
+        if (r.ok) {
+          const refreshed = await r.json();
+          saveAuthSession({
+            access_token: refreshed.access_token,
+            refresh_token: refreshed.refresh_token,
+            expires_at: Math.floor(Date.now() / 1000) + (refreshed.expires_in || 3600),
+            user: refreshed.user || AUTH_SESSION.user
+          });
+        } else {
+          saveAuthSession(null);
+          return null;
+        }
+      } catch (e) {
+        return AUTH_SESSION.access_token;
+      }
+    }
+    return AUTH_SESSION ? AUTH_SESSION.access_token : null;
+  }
+
+  async function signInWithPassword(email, password) {
+    const cleanEmail = String(email || "").trim().toLowerCase();
+    const r = await fetch(DEFAULT_URL + "/auth/v1/token?grant_type=password", {
+      method: "POST",
+      headers: { "apikey": DEFAULT_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ email: cleanEmail, password })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      throw new Error(data.error_description || data.msg || "Credenciales inválidas");
+    }
+    saveAuthSession({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_at: Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
+      user: data.user
+    });
+    return data.user;
+  }
+
   async function rpcCall(fn, body) {
-    const r = await fetch(CFG.url.replace(/\/$/, "") + "/rest/v1/rpc/" + fn, {
+    const token = (await ensureValidAccessToken()) || DEFAULT_KEY;
+    const r = await fetch(DEFAULT_URL + "/rest/v1/rpc/" + fn, {
       method: "POST",
       headers: {
-        "apikey": CFG.key,
-        "Authorization": "Bearer " + CFG.key,
+        "apikey": DEFAULT_KEY,
+        "Authorization": "Bearer " + token,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(body)
@@ -1336,6 +1437,18 @@
     }
     if (!navigator.onLine) {
       if (!silent) showToast("Sin conexión: se guardará al reconectar");
+      return null;
+    }
+    const token = await ensureValidAccessToken();
+    if (!token) {
+      if (!silent) {
+        showToast("Inicia sesión con tu cuenta @soyneto.com para registrar tiendas");
+        document.getElementById("cfgCode").value = CFG.code || "";
+        updateAuthUI();
+        document.getElementById("syncDialog").showModal();
+        loadRecentOpenings();
+        setTimeout(() => document.getElementById("authEmail")?.focus(), 150);
+      }
       return null;
     }
     const eco = String(f.eco || "").trim();
@@ -2585,12 +2698,39 @@
       document.getElementById("syncDialog").close();
     });
 
+    // Auth Form Handlers
+    updateAuthUI();
+    document.getElementById("authLoginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPassword").value;
+      const btn = document.getElementById("btnAuthLogin");
+      btn.disabled = true;
+      btn.textContent = "Verificando...";
+      try {
+        const user = await signInWithPassword(email, pass);
+        document.getElementById("authPassword").value = "";
+        showToast("✓ Sesión iniciada: " + (user.email || ""));
+        loadRecentOpenings();
+      } catch (err) {
+        showToast("Error: " + (err.message || "Credenciales inválidas"));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Iniciar Sesión (@soyneto.com)";
+      }
+    });
+
+    document.getElementById("btnAuthLogout").onclick = () => {
+      triggerHaptic(10);
+      saveAuthSession(null);
+      showToast("Sesión cerrada");
+    };
+
     // Sync Modal Controls
     document.getElementById("syncModalBtn").onclick = () => {
       triggerHaptic(10);
       document.getElementById("cfgCode").value = CFG.code || "";
-      document.getElementById("cfgUrl").value = CFG.url || "";
-      document.getElementById("cfgKey").value = CFG.key || "";
+      updateAuthUI();
       document.getElementById("syncDialog").showModal();
       loadRecentOpenings();
     };
@@ -2613,20 +2753,16 @@
 
     document.getElementById("btnSaveConfig").onclick = () => {
       triggerHaptic(12);
-      CFG.code = document.getElementById("cfgCode").value.trim();
-      CFG.url = document.getElementById("cfgUrl").value.trim() || DEFAULT_URL;
-      CFG.key = document.getElementById("cfgKey").value.trim() || DEFAULT_KEY;
+      CFG.code = document.getElementById("cfgCode").value.trim() || CFG.code;
       localStorage.setItem("neto_cfg", JSON.stringify(CFG));
       document.getElementById("syncDialog").close();
       pushToCloud();
-      showToast("Configuración guardada");
+      showToast("Sesión guardada");
     };
 
     document.getElementById("btnPullCloud").onclick = () => {
       triggerHaptic(12);
-      CFG.code = document.getElementById("cfgCode").value.trim();
-      CFG.url = document.getElementById("cfgUrl").value.trim() || DEFAULT_URL;
-      CFG.key = document.getElementById("cfgKey").value.trim() || DEFAULT_KEY;
+      CFG.code = document.getElementById("cfgCode").value.trim() || CFG.code;
       localStorage.setItem("neto_cfg", JSON.stringify(CFG));
       pullFromCloud();
       document.getElementById("syncDialog").close();

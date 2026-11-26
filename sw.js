@@ -1,9 +1,9 @@
-const CACHE_NAME = 'neto-apertura-v10';
+const CACHE_NAME = 'neto-apertura-v11';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './dist/styles.css?v=10',
+  './dist/styles.css?v=11',
   './dist/qrcode.js',
   './favicon.ico',
   './icon.svg',
@@ -38,8 +38,8 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  // Let Supabase & Telegram API requests pass directly to network
-  if (req.url.includes('/rest/v1/') || req.url.includes('t.me/')) {
+  // Let Supabase API, Auth & Telegram requests pass directly to network
+  if (req.url.includes('/rest/v1/') || req.url.includes('/auth/v1/') || req.url.includes('t.me/')) {
     return;
   }
 
