@@ -373,7 +373,7 @@
           </button>
         </div>
 
-        <div id="caja2NoBreakNote" class="hidden rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs p-3 font-medium flex items-start gap-2">
+        <div id="caja2NoBreakNote" class="hidden rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs p-3 font-medium items-start gap-2">
           <svg class="w-4 h-4 shrink-0 mt-0.5 text-amber-500" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
             <path d="M12 9v4"></path>
@@ -1602,8 +1602,13 @@
     const cardsContainer = document.getElementById("periphCardsContainer");
     const c2Note = document.getElementById("caja2NoBreakNote");
     if (c2Note) {
-      if (currentPeriphStation === "C02") c2Note.classList.remove("hidden");
-      else c2Note.classList.add("hidden");
+      if (currentPeriphStation === "C02") {
+        c2Note.classList.remove("hidden");
+        c2Note.classList.add("flex");
+      } else {
+        c2Note.classList.add("hidden");
+        c2Note.classList.remove("flex");
+      }
     }
 
     if (cardsContainer) {
