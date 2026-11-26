@@ -476,9 +476,31 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-muted-foreground font-semibold mb-1">ECO (Determinante)</label>
+              <input type="text" data-field="eco" inputmode="numeric" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition font-mono" placeholder="Ej. 1950">
+            </div>
+            <div>
+              <label class="block text-muted-foreground font-semibold mb-1">CECO</label>
+              <input type="text" data-field="ceco" inputmode="numeric" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition font-mono" placeholder="Ej. 651950">
+            </div>
+          </div>
           <div>
-            <label class="block text-muted-foreground font-semibold mb-1">No. y Nombre de Tienda</label>
-            <input type="text" data-field="tienda" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. 1708 Comalapa Mercado">
+            <label class="block text-muted-foreground font-semibold mb-1">Nombre de Tienda</label>
+            <input type="text" data-field="tienda" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. COMALAPA MERCADO">
+          </div>
+          <div>
+            <label class="block text-muted-foreground font-semibold mb-1">Estado</label>
+            <select data-field="estado" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition">
+              <option value="Chiapas">Chiapas</option>
+              <option value="Tabasco">Tabasco</option>
+              <option value="Campeche">Campeche</option>
+              <option value="Yucatán">Yucatán</option>
+              <option value="Quintana Roo">Quintana Roo</option>
+              <option value="Oaxaca">Oaxaca</option>
+              <option value="Veracruz">Veracruz</option>
+            </select>
           </div>
           <div>
             <label class="block text-muted-foreground font-semibold mb-1">Fecha de Visita</label>
@@ -490,8 +512,37 @@
           </div>
           <div>
             <label class="block text-muted-foreground font-semibold mb-1">Región</label>
-            <input type="text" data-field="region" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. Chiapas / Sureste">
+            <input type="text" data-field="region" class="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition" placeholder="Ej. CHIAPAS">
           </div>
+          <div class="sm:col-span-2">
+            <label class="block text-muted-foreground font-semibold mb-1">Coordenadas GPS (Lat, Lng)</label>
+            <div class="flex items-center gap-2">
+              <input type="text" data-field="coords" class="flex-1 h-9 rounded-lg border border-input bg-background px-3 py-1.5 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition font-mono" placeholder="Ej. 16.7516000,-93.1029000">
+              <button id="btnCaptureGps" type="button" class="inline-flex items-center justify-center gap-1.5 h-9 rounded-lg border border-border bg-secondary hover:bg-accent text-secondary-foreground font-semibold px-3 text-xs transition active:scale-95 shrink-0" title="Capturar ubicación GPS actual">
+                <svg class="w-3.5 h-3.5 text-primary" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>Capturar GPS</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Registro directo al catálogo maestro de Supabase (rutas_sureste.tiendas) -->
+        <div class="pt-2 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="text-[11px] text-muted-foreground leading-snug">
+            <span id="storeDbStatusBadge" class="font-semibold text-foreground">Sincronización con Catálogo Maestro:</span>
+            Registra la tienda nueva en Supabase para que aparezca al instante en Rutas Sureste y el Bot.
+          </div>
+          <button id="btnRegisterStoreSupabase" type="button" class="inline-flex items-center justify-center gap-1.5 h-9 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-3.5 text-xs transition active:scale-95 shrink-0 shadow-xs">
+            <svg class="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            <span id="btnRegisterStoreText">Guardar en Supabase</span>
+          </button>
         </div>
       </div>
 
@@ -1102,9 +1153,13 @@
     return {
       f: {
         fecha: new Date().toISOString().slice(0, 10),
+        eco: "",
+        ceco: "",
         tienda: "",
+        estado: "Chiapas",
         sian: "",
-        region: "",
+        region: "CHIAPAS",
+        coords: "",
         isp: "Telmex",
         svc: "Fibra Óptica",
         speed: "",
@@ -1211,7 +1266,7 @@
     updateCatalogBadge();
     if (!navigator.onLine || !CFG.url || !CFG.key) return;
     try {
-      const url = CFG.url.replace(/\/$/, "") + "/rest/v1/tiendas?select=eco,nombre,region,zona,ingeniero,estado&order=nombre.asc";
+      const url = CFG.url.replace(/\/$/, "") + "/rest/v1/tiendas?select=eco,ceco,nombre,region,zona,ingeniero,estado,coords,lat,lng&order=nombre.asc";
       const r = await fetch(url, {
         headers: {
           "apikey": CFG.key,
@@ -1229,6 +1284,77 @@
       }
     } catch (e) {
       console.warn("Catálogo offline:", e);
+    }
+  }
+
+  function parseCoordsString(str) {
+    const m = String(str || "").trim().match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+    if (!m) return { lat: null, lng: null };
+    return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  }
+
+  function getStoreDisplayLabel() {
+    const f = STATE.f || {};
+    const eco = String(f.eco || "").trim();
+    const nom = String(f.tienda || "").trim();
+    if (!nom) return eco ? `TIENDA ${eco}` : "Tienda de Apertura";
+    if (eco && eco !== "0" && !new RegExp(`\\b${eco}\\b`).test(nom)) {
+      return `${nom} ${eco}`.trim();
+    }
+    return nom;
+  }
+
+  async function registerStoreInSupabase(silent = false) {
+    const f = STATE.f || {};
+    const nombreRaw = String(f.tienda || "").trim();
+    if (!nombreRaw) {
+      if (!silent) showToast("Escribe el nombre de la tienda antes de registrar");
+      return null;
+    }
+    if (!navigator.onLine) {
+      if (!silent) showToast("Sin conexión: se guardará al reconectar");
+      return null;
+    }
+    const eco = String(f.eco || "").trim();
+    const ceco = String(f.ceco || "").trim();
+    const { lat, lng } = parseCoordsString(f.coords);
+    // Limpiar el ECO si el usuario lo escribió dentro del nombre para guardar nombre limpio en DB
+    const nombreLimpio = eco ? nombreRaw.replace(new RegExp(`\\b${eco}\\b`, "g"), "").replace(/\s+/g, " ").trim() : nombreRaw;
+
+    const btnTxt = document.getElementById("btnRegisterStoreText");
+    const statusBadge = document.getElementById("storeDbStatusBadge");
+    if (!silent && btnTxt) btnTxt.textContent = "Guardando...";
+
+    try {
+      const res = await rpcCall("neto_upsert_tienda_apertura", {
+        p_eco: eco || "0",
+        p_ceco: ceco || "0",
+        p_nombre: nombreLimpio || nombreRaw,
+        p_estado: f.estado || "Chiapas",
+        p_region: f.region || "CHIAPAS",
+        p_zona: f.sian || "",
+        p_ingeniero: f.ing || "",
+        p_coords: f.coords || "",
+        p_lat: lat,
+        p_lng: lng
+      });
+      if (statusBadge) {
+        statusBadge.textContent = res.action === "updated"
+          ? "✓ Tienda actualizada en Rutas Sureste:"
+          : "✓ Tienda registrada en Rutas Sureste:";
+        statusBadge.className = "font-semibold text-emerald-600 dark:text-emerald-400";
+      }
+      if (!silent) {
+        showToast(res.action === "updated" ? "✓ Tienda actualizada en Supabase" : "✓ Nueva tienda registrada en Supabase");
+      }
+      loadRutasSuresteCatalog();
+      return res;
+    } catch (err) {
+      console.warn("Error registrando tienda en Supabase:", err);
+      if (!silent) showToast("Error al registrar tienda en Supabase");
+      return null;
+    } finally {
+      if (!silent && btnTxt) btnTxt.textContent = "Guardar en Supabase";
     }
   }
 
@@ -1322,7 +1448,7 @@
 
     const storeTitle = document.getElementById("headerStoreName");
     if (storeTitle) {
-      storeTitle.textContent = STATE.f.tienda || "Tienda Apertura";
+      storeTitle.textContent = getStoreDisplayLabel();
     }
 
     // Update mobile & desktop checklist badges
@@ -1626,10 +1752,11 @@
     listSection.innerHTML = html;
   }
 
-  /* --- 10. GENERATE WHATSAPP / SLACK REPORT --- */
+  /* --- 10. GENERATE WHATSAPP / SLACK REPORT (CLEAN & CONSISTENT) --- */
   function generateReportText() {
     const f = STATE.f;
     const lines = [];
+    const storeLabel = getStoreDisplayLabel().toUpperCase();
 
     const getActive = (key) => STATE[key].filter(x => x.on).map(x => x.t);
     const corr = getActive("corr");
@@ -1646,20 +1773,23 @@
     STATIONS.forEach(s => {
       PERIPHERALS.forEach(p => {
         if (STATE.periph[s.id + "|" + p] === "Falla") {
-          fails.push(`${p.replace(/^..\s*/, "")} en ${s.id}: Falla`);
+          const cleanName = (PERIPH_UI_META[p] && PERIPH_UI_META[p].label) || p.replace(/^..\s*/, "");
+          fails.push(`${cleanName} en ${s.id}: Falla`);
         }
       });
     });
 
     const header = [
-      "*Se concluye visita a Tienda Neto* 🚗🏪",
-      `*${f.tienda || "Tienda de Apertura"}*`,
-      (f.sian || f.region) ? `🗺️ *Zona SIAN:* ${f.sian || "—"}${f.region ? " · *Región:* " + f.region : ""}` : null
-    ].filter(Boolean);
+      "*Se concluye visita a Tienda Neto 🚗*",
+      "",
+      `*${storeLabel}*`,
+      "• Implementación de tienda por apertura",
+      (f.sian || f.region) ? `• Zona SIAN: ${f.sian || "Por asignar"}${f.region ? " · Región: " + f.region : ""}` : null
+    ].filter(x => x !== null);
 
     const netInfo = [
-      f.isp ? `📡 Proveedor Internet: ${f.isp}${f.svc ? " (" + f.svc + ")" : ""}` : null,
-      f.speed ? `🚀 SpeedTest: ${f.speed} Mbps` : null
+      f.isp ? `• Internet: ${f.isp}${f.svc ? " (" + f.svc + ")" : ""}` : null,
+      f.speed ? `• SpeedTest: ${f.speed}${/mbps/i.test(f.speed) ? "" : " Mbps"}` : null
     ].filter(Boolean);
 
     const versions = [
@@ -1669,8 +1799,8 @@
     ].filter(Boolean).join(" · ");
 
     const responsibles = [
-      `🧑🏻‍💻 Atiende Visita: Ing. ${f.ing || "Soporte Técnico"}`,
-      `🤝 Se entrega a Calidad Operativa: ${f.co || "Pendiente de validación"}`
+      `• Atiende (Sistemas): ${f.ing ? (f.ing.toLowerCase().startsWith("ing") ? f.ing : "Ing. " + f.ing) : "Soporte Técnico"}`,
+      `• Recibe (Calidad Operativa): ${f.co || "Pendiente de validación"}`
     ];
 
     const hashtags = [
@@ -1680,101 +1810,97 @@
       "#Sistemas 🛒🖥️🖨️📡"
     ];
 
-    const addBlock = (title, items, icon) => {
+    const addBlock = (title, items) => {
       if (!items || items.length === 0) return [];
-      return ["", title, ...items.map(it => `${icon} ${it}`)];
+      return ["", title, ...items.map(it => `• ${it}`)];
     };
 
-    /* Formato 1: Resumen Pro (Híbrido) */
+    /* Formato 1: Resumen Pro (Limpio y Ejecutivo) */
     if (STATE.fmt === "pro") {
       lines.push(...header, "");
-      if (versions) lines.push(`⚙️ ${versions}`);
+      lines.push("*COMUNICACIONES Y SOFTWARE*");
+      if (versions) lines.push(`• ${versions}`);
       if (netInfo.length) lines.push(...netInfo);
+      lines.push(`• Rack de comunicaciones: ${f.rack || "Ok"} · Balanceo VPN: ${STATE.vpn ? "Ok" : "N/A"}`);
 
-      lines.push("", "*ESTADO DE EQUIPOS*");
+      lines.push("", "*ESTATUS DE EQUIPOS (GT | C01 | C02)*");
       PERIPHERALS.forEach(p => {
+        const cleanName = (PERIPH_UI_META[p] && PERIPH_UI_META[p].label) || p.replace(/^..\s*/, "");
         const summary = STATIONS.map(s => `${s.id}: ${STATE_LABELS[STATE.periph[s.id + "|" + p]]}`).join(" | ");
-        lines.push(`${p}: ${summary}`);
+        lines.push(`• ${cleanName}: ${summary}`);
       });
-      lines.push(`🎞️ Rack de comunicaciones: ${f.rack || "Ok"}${STATE.vpn ? " · 🆙 Balanceo VPN: Ok" : ""}`);
-      lines.push("*(C02 por diseño arquitectónico no lleva No-Break)*");
+      lines.push("_(C02 no lleva No-Break por diseño arquitectónico)_");
 
       const deliverables = [...doneWorks.slice(0, 8), ...corr];
-      lines.push(...addBlock("*TRABAJOS REALIZADOS*", deliverables, "✅"));
-      lines.push(...addBlock("*PENDIENTES*", pend, "❌"));
-      lines.push(...addBlock("*HALLAZGOS*", hall, "⚠️"));
+      lines.push(...addBlock("*TRABAJOS REALIZADOS*", deliverables));
+      lines.push(...addBlock("*PENDIENTES*", pend));
+      lines.push(...addBlock("*HALLAZGOS*", hall));
 
       if (fails.length) {
-        lines.push(...addBlock("*EQUIPOS CON FALLA*", fails, "❌"));
+        lines.push(...addBlock("*EQUIPOS CON FALLA*", fails));
       }
 
       if (STATE.obs.trim()) {
         lines.push("", "*OBSERVACIONES*", STATE.obs.trim());
       }
 
-      lines.push("", ...responsibles);
+      lines.push("", "*RESPONSABLES*", ...responsibles);
       lines.push(...hashtags);
 
     /* Formato 2: Ejecutivo Corto */
     } else if (STATE.fmt === "corto") {
       lines.push(...header, "");
-      if (versions) lines.push(versions);
+      if (versions) lines.push(`• ${versions}`);
       if (netInfo.length) lines.push(...netInfo);
       lines.push(...responsibles);
 
-      lines.push(...addBlock("*Entregables*", corr, "✅"));
-      lines.push(...addBlock("*Pendientes*", pend, "❌"));
-      lines.push(...addBlock("*Hallazgos*", hall, "⚠️"));
+      lines.push(...addBlock("*ENTREGABLES*", corr));
+      lines.push(...addBlock("*PENDIENTES*", pend));
+      lines.push(...addBlock("*HALLAZGOS*", hall));
 
       if (fails.length) {
-        lines.push(...addBlock("*Fallas*", fails, "❌"));
+        lines.push(...addBlock("*EQUIPOS CON FALLA*", fails));
       }
 
       lines.push(...hashtags);
 
     /* Formato 3: SIAN Completo */
     } else {
-      lines.push(...header, "", "🪛🖥️");
-      doneWorks.forEach(w => lines.push(`⚙️ ${w}`));
-
-      lines.push(
-        "",
-        "🔰 *Equipos de comunicaciones*",
-        "Switch: Ok",
-        `Marca: Fortinet · Modelo: ${f.fortinet || "40F"}`,
-        "Estatus: Ok",
-        "",
-        ...netInfo,
-        "",
-        "*OBSERVACIONES*"
-      );
-
-      PERIPHERALS.forEach(p => {
-        const pClean = p.replace(/^..\s*/, "").toUpperCase();
-        lines.push(pClean + ".");
-        STATIONS.forEach(s => {
-          lines.push(`${s.id}: ${STATE_LABELS[STATE.periph[s.id + "|" + p]]}`);
-        });
-      });
-
-      lines.push(
-        `🎞️ RACK DE COMUNICACIONES: ${f.rack || "Ok"}`,
-        `📨 Cambios HYDRA: ${f.hydra || "Ok"}`,
-        `🆙 Balanceo VPN: ${STATE.vpn ? "Ok" : "N/A"}`
-      );
-
-      lines.push(...addBlock("*CORRECCIONES*", corr, "✅"));
-      lines.push(...addBlock("*PENDIENTES*", pend, "❌"));
-      lines.push(...addBlock("*HALLAZGOS*", hall, "❌"));
-
-      if (STATE.obs.trim()) {
-        lines.push("", STATE.obs.trim());
+      lines.push(...header);
+      if (doneWorks.length) {
+        lines.push("", "*ACTIVIDADES DE IMPLEMENTACIÓN*");
+        doneWorks.forEach(w => lines.push(`• ${w}`));
       }
 
       lines.push(
         "",
-        "📸 Inventario Fotográfico: COMPLETO",
+        "*COMUNICACIONES E INTERNET*",
+        `• Switch / Fortinet (${f.fortinet || "40F"}): Ok`,
+        `• Rack de comunicaciones: ${f.rack || "Ok"} · Balanceo VPN: ${STATE.vpn ? "Ok" : "N/A"}`,
+        `• Imagen SO: ${f.imagen || "1063"} · Cambios Hydra: ${f.hydra || "1107"}`,
+        ...netInfo,
         "",
+        "*ESTATUS DE EQUIPOS (GT | C01 | C02)*"
+      );
+
+      PERIPHERALS.forEach(p => {
+        const cleanName = (PERIPH_UI_META[p] && PERIPH_UI_META[p].label) || p.replace(/^..\s*/, "");
+        const summary = STATIONS.map(s => `${s.id}: ${STATE_LABELS[STATE.periph[s.id + "|" + p]]}`).join(" | ");
+        lines.push(`• ${cleanName}: ${summary}`);
+      });
+
+      lines.push(...addBlock("*ENTREGABLES Y CORRECCIONES*", corr));
+      lines.push(...addBlock("*PENDIENTES*", pend));
+      lines.push(...addBlock("*HALLAZGOS*", hall));
+
+      if (STATE.obs.trim()) {
+        lines.push("", "*OBSERVACIONES*", STATE.obs.trim());
+      }
+
+      lines.push(
+        "",
+        "*RESPONSABLES*",
+        "• Inventario fotográfico: COMPLETO",
         ...responsibles,
         ...hashtags
       );
@@ -1923,9 +2049,10 @@
         }
 
         storeResultsBox.innerHTML = matches.map((s, idx) => {
-          const ecoBadge = s.eco ? `<span class="inline-flex items-center rounded bg-primary/15 text-primary px-1.5 py-0.5 text-[10px] font-mono font-bold">ECO ${s.eco}</span>` : `<span class="inline-flex items-center rounded bg-secondary text-muted-foreground px-1.5 py-0.5 text-[10px] font-mono">S/E</span>`;
+          const ecoBadge = s.eco && s.eco !== "0" ? `<span class="inline-flex items-center rounded bg-primary/15 text-primary px-1.5 py-0.5 text-[10px] font-mono font-bold">ECO ${s.eco}</span>` : `<span class="inline-flex items-center rounded bg-secondary text-muted-foreground px-1.5 py-0.5 text-[10px] font-mono">S/E</span>`;
+          const coordsStr = s.coords || (s.lat && s.lng ? `${s.lat},${s.lng}` : "");
           return `
-          <button type="button" data-catalog-idx="${idx}" data-eco="${s.eco || ''}" data-nombre="${s.nombre || ''}" data-zona="${s.zona || ''}" data-region="${s.region || ''}" data-ing="${s.ingeniero || ''}" class="w-full text-left p-2.5 hover:bg-accent transition flex items-center justify-between gap-2">
+          <button type="button" data-catalog-idx="${idx}" data-eco="${s.eco || ''}" data-ceco="${s.ceco || ''}" data-nombre="${s.nombre || ''}" data-estado="${s.estado || 'Chiapas'}" data-zona="${s.zona || ''}" data-region="${s.region || ''}" data-ing="${s.ingeniero || ''}" data-coords="${coordsStr}" class="w-full text-left p-2.5 hover:bg-accent transition flex items-center justify-between gap-2">
             <div class="min-w-0">
               <div class="flex items-center gap-1.5">
                 ${ecoBadge}
@@ -1946,14 +2073,21 @@
         if (!btn) return;
         triggerHaptic(12);
         const eco = btn.dataset.eco;
+        const ceco = btn.dataset.ceco;
         const nombre = btn.dataset.nombre;
+        const estado = btn.dataset.estado;
         const zona = btn.dataset.zona;
         const region = btn.dataset.region;
         const ing = btn.dataset.ing;
+        const coords = btn.dataset.coords;
 
-        STATE.f.tienda = eco ? `${eco} ${nombre}` : nombre;
+        STATE.f.eco = eco && eco !== "0" ? eco : "";
+        STATE.f.ceco = ceco && ceco !== "0" ? ceco : "";
+        STATE.f.tienda = nombre;
+        if (estado) STATE.f.estado = estado;
         if (zona) STATE.f.sian = zona;
         if (region) STATE.f.region = region;
+        if (coords) STATE.f.coords = coords;
         if (ing && !STATE.f.ing) STATE.f.ing = ing;
 
         storeSearchInput.value = "";
@@ -1961,7 +2095,7 @@
         renderStoreForm();
         scheduleSave();
         updateReportOutput();
-        showToast(`✓ Sucursal cargada: ${STATE.f.tienda}`);
+        showToast(`✓ Sucursal cargada: ${getStoreDisplayLabel()}`);
       });
 
       document.addEventListener("click", (e) => {
@@ -2128,17 +2262,65 @@
       updateReportOutput();
     };
 
-    // Store Form Input Listeners
+    // Store Form Input Listeners (input + select)
     document.querySelectorAll("[data-field]").forEach(input => {
-      input.addEventListener("input", (e) => {
-        STATE.f[e.target.dataset.field] = e.target.value;
-        if (e.target.dataset.field === "tienda") {
+      const evtName = input.tagName === "SELECT" ? "change" : "input";
+      input.addEventListener(evtName, (e) => {
+        const key = e.target.dataset.field;
+        STATE.f[key] = e.target.value;
+        if (key === "eco") {
+          const cleanEco = e.target.value.replace(/\D/g, "");
+          if (cleanEco.length === 4 && (!STATE.f.ceco || /^65\d{0,4}$/.test(STATE.f.ceco))) {
+            STATE.f.ceco = "65" + cleanEco;
+            const cecoEl = document.querySelector('[data-field="ceco"]');
+            if (cecoEl) cecoEl.value = STATE.f.ceco;
+          }
+          updateProgressHeader();
+        }
+        if (key === "tienda") {
           updateProgressHeader();
         }
         scheduleSave();
         updateReportOutput();
       });
     });
+
+    // Capture GPS Coordinates for Supabase (rutas_sureste.tiendas)
+    const btnCaptureGps = document.getElementById("btnCaptureGps");
+    if (btnCaptureGps) {
+      btnCaptureGps.onclick = () => {
+        triggerHaptic(15);
+        if (!navigator.geolocation) {
+          showToast("Tu navegador no soporta geolocalización GPS");
+          return;
+        }
+        showToast("Obteniendo ubicación GPS...");
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const coords = `${pos.coords.latitude.toFixed(7)},${pos.coords.longitude.toFixed(7)}`;
+            STATE.f.coords = coords;
+            const coordsInput = document.querySelector('[data-field="coords"]');
+            if (coordsInput) coordsInput.value = coords;
+            scheduleSave();
+            showToast("✓ Coordenadas GPS capturadas");
+          },
+          () => {
+            showToast("Activa el GPS o permite el acceso a ubicación");
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      };
+    }
+
+    // Register / Update Store in Supabase Master Catalog (rutas_sureste.tiendas)
+    const btnRegStore = document.getElementById("btnRegisterStoreSupabase");
+    if (btnRegStore) {
+      btnRegStore.onclick = async () => {
+        triggerHaptic(18);
+        await registerStoreInSupabase(false);
+        await pushToCloud();
+      };
+    }
 
     document.getElementById("txtObservaciones").addEventListener("input", (e) => {
       STATE.obs = e.target.value;
@@ -2212,13 +2394,16 @@
       });
     };
 
-    // Send via Telegram Bot with Photos
+    // Send via Telegram Bot with Photos & Videos (auto-syncs store + checklist in Supabase)
     const btnTgBot = document.getElementById("btnOpenTelegramBot");
     if (btnTgBot) {
       btnTgBot.onclick = async () => {
         triggerHaptic(20);
-        showToast("Sincronizando checklist con la nube...");
+        showToast("Sincronizando tienda y checklist con Supabase...");
         try {
+          if (STATE.f.tienda && STATE.f.tienda.trim()) {
+            await registerStoreInSupabase(true);
+          }
           await pushToCloud();
         } catch (e) {}
         const botCode = encodeURIComponent(CFG.code);
